@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
-import { Grenze_Gotisch } from "next/font/google";
+import { Grenze, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/react"
 
-const grenzeGotisch = Grenze_Gotisch({
-  variable: "--font-grenze-gotisch",
+const montserrat = Montserrat_Alternates({
+  subsets: ['latin'],
+  weight: "500"
+})
+
+const grenze = Grenze({
+  variable: "--font-grenze",
+  weight: "300",
   subsets: ["latin"],
 });
 
@@ -19,9 +26,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Analytics />
       <body
-        className={`${grenzeGotisch.className}`}
+        className={`${grenze.className}`}
       >
+        <header className={`${montserrat.className} text-center`}>
+          <span className="logo">
+            TWESCO
+          </span>
+        </header>
         {children}
       </body>
     </html>
