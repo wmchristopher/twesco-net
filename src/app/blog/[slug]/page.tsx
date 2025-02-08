@@ -2,7 +2,7 @@ import sql from '../../db'
 import { notFound } from 'next/navigation'
 
 function Article(props: {entry: {title: string, content: string}}) {
-    let entry = props.entry
+    const entry = props.entry
     return (
         <article>
             <h1>
