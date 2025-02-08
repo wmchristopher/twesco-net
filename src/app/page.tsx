@@ -1,4 +1,9 @@
-import { montserrat } from '../app/layout'
+import { Montserrat_Alternates } from '@next/font/google'
+
+const montserrat = Montserrat_Alternates({
+  subsets: ['latin'],
+  weight: "500"
+})
 
 export default function Home() {
   return (
