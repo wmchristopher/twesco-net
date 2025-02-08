@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Grenze_Gotisch } from "@next/font/google";
+import { Grenze_Gotisch } from "next/font/google";
 import "./globals.css";
 
 const grenzeGotisch = Grenze_Gotisch({

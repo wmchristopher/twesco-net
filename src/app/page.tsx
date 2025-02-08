@@ -1,4 +1,4 @@
-import { Montserrat_Alternates } from '@next/font/google'
+import { Montserrat_Alternates } from "next/font/google"
 
 const montserrat = Montserrat_Alternates({
   subsets: ['latin'],
