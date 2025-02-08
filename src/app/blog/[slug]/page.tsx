@@ -1,13 +1,29 @@
 import sql from '../../db'
+import { notFound } from 'next/navigation'
+
+function Article({entry}) {
+    return (
+        <article>
+            <h1>
+                {entry.title}
+            </h1>
+            {entry.content}
+        </article>
+    )
+}
 
 export default async function Page(props: {params: Promise<{slug: string}>}) {
     const { slug } = await props.params;
 
-    const entry = await sql`select * from blog_post where id = '${slug}'`
+    const entry = await sql`SELECT * FROM blog_post WHERE slug = ${ slug }`
+
+    if (entry[0] === undefined) {
+        notFound();
+    }
 
     return (
-        <article>
-            {JSON.stringify(entry)}
-        </article>
+        <main className="p-4">
+            <Article entry={entry[0]} />
+        </main>
     )
 }
