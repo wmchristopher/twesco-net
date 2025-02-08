@@ -1,7 +1,8 @@
 import sql from '../../db'
 import { notFound } from 'next/navigation'
+import { Row } from 'postgres'
 
-function Article(props: {entry: {title: string, content: string}}) {
+function Article(props: {entry: Row}) {
     const entry = props.entry
     return (
         <article>
