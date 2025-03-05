@@ -13,6 +13,7 @@ const cormorant = Cormorant({
   weight: "300",
   subsets: ["latin"],
 });
+cormorant;
 
 const ysabeau = Ysabeau_Office({
   variable: "--font-ysabeau",
