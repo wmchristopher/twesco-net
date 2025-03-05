@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant, Ysabeau_Office, Montserrat_Alternates } from "next/font/google";
+import { Ysabeau_Office, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react"
 
@@ -7,13 +7,6 @@ const montserrat = Montserrat_Alternates({
   subsets: ['latin'],
   weight: "500"
 })
-
-const cormorant = Cormorant({
-  variable: "--font-cormorant",
-  weight: "300",
-  subsets: ["latin"],
-});
-cormorant;
 
 const ysabeau = Ysabeau_Office({
   variable: "--font-ysabeau",
