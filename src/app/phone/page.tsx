@@ -71,7 +71,7 @@ export default function Phone() {
         return freq * (2 ** (step / edo))
     }
 
-    const pajara = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const pajara = (e: React.KeyboardEvent<HTMLButtonElement>) => {
         const PITCH_C = 220 * 2 ** (1 / 4)
         const keyMap: {[id: string] : number} = {
             'a': 0,
