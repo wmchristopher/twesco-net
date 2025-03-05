@@ -1,7 +1,7 @@
 'use client'
 
 import * as Tone from 'tone'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 
 function Key({keyChar}: { keyChar: string }) {
@@ -22,7 +22,7 @@ function Qwerty() {
         <div style={{display: 'grid', gridTemplateColumns: 'repeat(25, max-content)'}}>
             {[numRow, topRow, midRow, btmRow].map((row, i) => (
                 <div key={i} style={{display: "grid", gridTemplateColumns: "subgrid", gridColumn: `${i + 1} / -1`}}>
-                    {row.map((s) => (<Key keyChar={s} />))}
+                    {row.map((s) => (<Key key={s} keyChar={s} />))}
                 </div>
             ))}
         </div>
@@ -66,8 +66,6 @@ export default function Phone() {
             synth.triggerAttackRelease(keyMap[e.key], "16n")
         } 
     }
-
-    const PITCH_C = 440
 
     function adjustByEdoStep(freq: number, edo: number, step: number) {
         return freq * (2 ** (step / edo))
