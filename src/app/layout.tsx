@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Grenze, Montserrat_Alternates } from "next/font/google";
+import { Cormorant, Ysabeau_Office, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react"
 
@@ -8,9 +8,15 @@ const montserrat = Montserrat_Alternates({
   weight: "500"
 })
 
-const grenze = Grenze({
-  variable: "--font-grenze",
+const cormorant = Cormorant({
+  variable: "--font-cormorant",
   weight: "300",
+  subsets: ["latin"],
+});
+
+const ysabeau = Ysabeau_Office({
+  variable: "--font-ysabeau",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -28,7 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <Analytics />
       <body
-        className={`${grenze.className}`}
+        className={`${ysabeau.className}`}
       >
         <header className={`${montserrat.className} text-center`}>
           <span className="logo">
