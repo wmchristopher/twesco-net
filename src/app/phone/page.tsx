@@ -40,7 +40,7 @@ export default function Phone() {
         setSynth(newSynth)
     }
 
-    const play12Tet = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const play12Tet = (e: React.KeyboardEvent<HTMLButtonElement>) => {
         const keyMap: {[id: string] : string} = {
             'a': 'C4',
             'w': 'C#4',
