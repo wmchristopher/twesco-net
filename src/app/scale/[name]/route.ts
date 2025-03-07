@@ -9,7 +9,6 @@ export async function GET(
     
 
     const result = await sql`SELECT * FROM scale WHERE name = ${ name ?? '' }`
-    console.log(result)
 
     if (result[0] === undefined) {
         notFound();

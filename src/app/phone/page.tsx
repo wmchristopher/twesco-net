@@ -1,7 +1,7 @@
 "use client"
 
 import * as Tone from 'tone'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { makeScale } from '@/app/lib/models/scale'
 
 
@@ -34,8 +34,9 @@ function Qwerty() {
 export default function Phone() {
     const [synth, setSynth] = useState<Tone.Synth | null>(null)
 
-    const [scale, setScale] = useState<Object>(null);
-    const [scaleName, setScaleName] = useState<string>("diatonic")
+    const [scale, setScale] = useState<object | null>(null);
+    const [scaleName, setScaleName] = useState<string>("")
+    const [scales, setScales] = useState<Array<string>>([])
 
     const initializeTone = async () => {
         await Tone.start()
@@ -50,11 +51,17 @@ export default function Phone() {
         .then((r: Response) => r.json())
         .then((rJson) => {
             setScale(rJson);
-            setScaleName(thisScaleName);
-            console.log(scale)
-            console.log(thisScaleName)
+            setScaleName(thisScaleName)
         })
     }
+
+    useEffect(() => {
+        fetch('/scale/')
+        .then((r: Response) => r.json())
+        .then((rJson) => {
+            setScales(rJson.map((s: any) => s.name))
+        })
+    }, [])
 
     return (
         <>
@@ -66,8 +73,8 @@ export default function Phone() {
                         onChange={handleSelectScale}
                         onKeyDown={makeScale(synth, scale)}
                     >
-                        <option value="diatonic">diatonic</option>
-                        <option value="pajara">pajara</option>
+                        <option disabled></option>
+                        {scales.map((s) => (<option key={s} value={s}>{s}</option>))}
                     </select>
                     <br />
                     <Qwerty />
