@@ -2,7 +2,7 @@
 
 import * as Tone from 'tone';
 import { ChangeEvent, useEffect, useState } from 'react';
-import Scale from '../lib/models/scale'; '@/app/lib/models/scale';
+import Scale from '../lib/models/scale';
 
 
 function Key({keyChar}: { keyChar: string }) {
@@ -60,7 +60,7 @@ export default function Phone() {
         fetch('/scale/')
         .then((r: Response) => r.json())
         .then((rJson) => {
-            setScales(rJson.map((s: any) => s.name))
+            setScales(rJson.map((s: Scale) => s.name))
         });
     }, []);
 
