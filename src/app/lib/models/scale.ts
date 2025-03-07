@@ -2,15 +2,24 @@
 
 import * as Tone from 'tone'
 
-const PITCH_C = 220 * 2 ** (1 / 4)
+const pitchC = 220 * 2 ** (1 / 4);
 
 function adjustByEdoStep(freq: number, edo: number, step: number) {
-    return freq * (2 ** (step / edo))
+    return freq * (2 ** (step / edo));
 }
 
-export function makeScale(synth: Tone.Synth | null, scale: object) {
-    if (synth === null) return () => null
-    return (e: React.KeyboardEvent) => (e.key in scale.qwerty) ? 
-    synth.triggerAttackRelease(adjustByEdoStep(PITCH_C, scale.edo, scale.qwerty[e.key]), "16n")
-    : null
+export default class Scale {
+    constructor(
+        public name: string,
+        public qwerty: {[key: string]: number},
+        public edo: number
+    ) {}
+
+    makeScale(synth: Tone.Synth | null) {
+        if (synth === null) {return () => null;}
+
+        return (e: React.KeyboardEvent) => (e.key in this.qwerty)
+            ? synth.triggerAttackRelease(adjustByEdoStep(pitchC, this.edo, this.qwerty[e.key]), "16n")
+            : null;
+    }
 }

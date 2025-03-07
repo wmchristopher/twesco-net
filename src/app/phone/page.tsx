@@ -1,8 +1,8 @@
 "use client"
 
-import * as Tone from 'tone'
-import { ChangeEvent, useEffect, useState } from 'react'
-import { makeScale } from '@/app/lib/models/scale'
+import * as Tone from 'tone';
+import { ChangeEvent, useEffect, useState } from 'react';
+import Scale from '../lib/models/scale'; '@/app/lib/models/scale';
 
 
 function Key({keyChar}: { keyChar: string }) {
@@ -14,10 +14,10 @@ function Key({keyChar}: { keyChar: string }) {
 }
 
 function Qwerty() {
-    const numRow = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=']
-    const topRow = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']']
-    const midRow = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"]
-    const btmRow = ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/']
+    const numRow = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='];
+    const topRow = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']'];
+    const midRow = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"];
+    const btmRow = ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'];
 
     return (
         <div style={{display: 'grid', gridTemplateColumns: 'repeat(25, max-content)'}}>
@@ -27,32 +27,33 @@ function Qwerty() {
                 </div>
             ))}
         </div>
-    )
+    );
 }
 
 
 export default function Phone() {
-    const [synth, setSynth] = useState<Tone.Synth | null>(null)
+    const [synth, setSynth] = useState<Tone.Synth | null>(null);
 
-    const [scale, setScale] = useState<object | null>(null);
-    const [scaleName, setScaleName] = useState<string>("")
-    const [scales, setScales] = useState<Array<string>>([])
+    const [scale, setScale] = useState<Scale | null>(null);
+    const [scaleName, setScaleName] = useState<string>("");
+    const [scales, setScales] = useState<Array<string>>([]);
 
     const initializeTone = async () => {
-        await Tone.start()
-        const newSynth = new Tone.Synth().toDestination()
-        setSynth(newSynth)
+        await Tone.start();
+        const newSynth = new Tone.Synth().toDestination();
+        setSynth(newSynth);
     }
 
     const handleSelectScale = (e: ChangeEvent<HTMLSelectElement>) => {
-        const thisScaleName = e.target.value
+        const thisScaleName = e.target.value;
         if (synth === null) initializeTone();
         fetch(`/scale/${thisScaleName}`)
         .then((r: Response) => r.json())
         .then((rJson) => {
-            setScale(rJson);
+            console.log(rJson);
+            setScale(new Scale(rJson.name, rJson.qwerty, rJson.edo));
             setScaleName(thisScaleName)
-        })
+        });
     }
 
     useEffect(() => {
@@ -60,8 +61,8 @@ export default function Phone() {
         .then((r: Response) => r.json())
         .then((rJson) => {
             setScales(rJson.map((s: any) => s.name))
-        })
-    }, [])
+        });
+    }, []);
 
     return (
         <>
@@ -71,7 +72,7 @@ export default function Phone() {
                     <select
                         value={scaleName}
                         onChange={handleSelectScale}
-                        onKeyDown={makeScale(synth, scale)}
+                        onKeyDown={scale?.makeScale(synth)}
                     >
                         <option disabled></option>
                         {scales.map((s) => (<option key={s} value={s}>{s}</option>))}
@@ -81,5 +82,5 @@ export default function Phone() {
                 </article>
             </main>
         </>
-    )
+    );
 }
