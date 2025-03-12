@@ -2,28 +2,29 @@
 
 import * as Tone from 'tone';
 import { ChangeEvent, useEffect, useState } from 'react';
-import Scale from '../lib/models/scale';
+import Scale, { KeyData } from '@/app/lib/models/scale';
 
 
-function Key({keyChar}: { keyChar: string }) {
+function Key({keyData, keyActive}: { keyData: KeyData, keyActive: boolean}) {
     return (
-        <button key={keyChar} className='m-2 px-3 py-2 rounded bg-tyre text-parchment' style={{gridColumn: "span 2"}}>
-            {keyChar}
+        <button key={keyData.char} className={`key key-${keyData.color} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}}>
+            {keyData.char.toUpperCase()}
         </button>
     )
 }
 
-function Qwerty() {
+function Qwerty({scale, keysActive}: {scale: Scale | null, keysActive: Set<string>}) {
+    if (scale === null) {return (<></>)}
     const numRow = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='];
-    const topRow = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '[', ']'];
-    const midRow = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ';', "'"];
-    const btmRow = ['Z', 'X', 'C', 'V', 'B', 'N', 'M', ',', '.', '/'];
+    const topRow = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'];
+    const midRow = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"];
+    const btmRow = ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'];
 
     return (
         <div style={{display: 'grid', gridTemplateColumns: 'repeat(25, max-content)'}}>
             {[numRow, topRow, midRow, btmRow].map((row, i) => (
                 <div key={i} style={{display: "grid", gridTemplateColumns: "subgrid", gridColumn: `${i + 1} / -1`}}>
-                    {row.map((s) => (<Key key={s} keyChar={s} />))}
+                    {row.map((s) => (<Key key={s} keyData={scale.getKey(s)} keyActive={keysActive.has(s)} />))}
                 </div>
             ))}
         </div>
@@ -37,6 +38,7 @@ export default function Phone() {
     const [scale, setScale] = useState<Scale | null>(null);
     const [scaleName, setScaleName] = useState<string>("");
     const [scales, setScales] = useState<Array<string>>([]);
+    const [keysActive, setKeysActive] = useState<Set<string>>(new Set([]))
 
     const initializeTone = async () => {
         await Tone.start();
@@ -64,6 +66,22 @@ export default function Phone() {
         });
     }, []);
 
+    const highlightKey = (e: React.KeyboardEvent) => {
+        setKeysActive(ka => new Set(ka).add(e.key))
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        const player = scale?.makePlayer(synth);
+        if (player !== undefined) {
+            player(e);
+            highlightKey(e);
+        }
+    }
+
+    const handleKeyUp = (e: React.KeyboardEvent) => {
+        setKeysActive(ka => (ka.delete(e.key), new Set(keysActive)))
+    }
+
     return (
         <>
             <main>
@@ -72,13 +90,14 @@ export default function Phone() {
                     <select
                         value={scaleName}
                         onChange={handleSelectScale}
-                        onKeyDown={scale?.makeScale(synth)}
+                        onKeyDown={handleKeyDown}
+                        onKeyUp={handleKeyUp}
                     >
                         <option disabled></option>
                         {scales.map((s) => (<option key={s} value={s}>{s}</option>))}
                     </select>
                     <br />
-                    <Qwerty />
+                    <Qwerty scale={scale} keysActive={keysActive}/>
                 </article>
             </main>
         </>

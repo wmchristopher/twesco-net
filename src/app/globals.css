@@ -20,4 +20,25 @@
   article {
     @apply bg-parchment p-4 rounded;
   }
+
+  .key {
+    @apply m-2 px-3 py-2 rounded;
+  }
+
+  .key-white {
+    @apply bg-parchment;
+  }
+
+  .key-black {
+    @apply bg-tyre;
+    @apply text-parchment;
+  }
+
+  .key-none {
+    @apply bg-opacity-20 text-opacity-20 text-tyre;
+  }
+
+  .key-active {
+    @apply bg-papyrus;
+  }
 }
