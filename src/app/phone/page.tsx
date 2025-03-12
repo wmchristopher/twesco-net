@@ -33,7 +33,7 @@ function Qwerty({scale, keysActive}: {scale: Scale | null, keysActive: Set<strin
 
 
 export default function Phone() {
-    const [synth, setSynth] = useState<Tone.Synth | null>(null);
+    const [synth, setSynth] = useState<Tone.PolySynth | null>(null);
 
     const [scale, setScale] = useState<Scale | null>(null);
     const [scaleName, setScaleName] = useState<string>("");
@@ -42,7 +42,7 @@ export default function Phone() {
 
     const initializeTone = async () => {
         await Tone.start();
-        const newSynth = new Tone.Synth().toDestination();
+        const newSynth = new Tone.PolySynth().toDestination();
         setSynth(newSynth);
     }
 
@@ -66,20 +66,15 @@ export default function Phone() {
         });
     }, []);
 
-    const highlightKey = (e: React.KeyboardEvent) => {
-        setKeysActive(ka => new Set(ka).add(e.key))
-    }
-
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        const player = scale?.makePlayer(synth);
-        if (player !== undefined) {
-            player(e);
-            highlightKey(e);
-        }
+        if (e.repeat) {return;}
+        setKeysActive(ka => new Set(ka).add(e.key))
+        scale?.play(synth, e, 'attack');
     }
 
     const handleKeyUp = (e: React.KeyboardEvent) => {
         setKeysActive(ka => (ka.delete(e.key), new Set(keysActive)))
+        scale?.play(synth, e, 'release');
     }
 
     return (

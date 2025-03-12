@@ -30,11 +30,18 @@ export default class Scale {
         return {char, color: 'none', n: 0}
     }
 
-    makePlayer(synth: Tone.Synth | null) {
-        if (synth === null) {return () => null;}
+    play(synth: Tone.PolySynth | null, e: React.KeyboardEvent, type: string) {
+        if (synth == null || this.getKey(e.key) == null || this.getKey(e.key).color === 'none') {return;}
 
-        return (e: React.KeyboardEvent) => (this.getKey(e.key) !== undefined && this.getKey(e.key).color !== 'none')
-            ? synth.triggerAttackRelease(adjustByEdoStep(pitchC, this.edo, this.getKey(e.key).n), "16n")
-            : null;
+        const pitch = adjustByEdoStep(pitchC, this.edo, this.getKey(e.key).n);
+
+        switch (type) {
+            case 'attack':
+                synth.triggerAttack(pitch);
+                return;
+            case 'release':
+                synth.triggerRelease(pitch);
+                return;
+        }
     }
 }
