@@ -8,7 +8,8 @@ import Scale, { KeyData } from '@/app/lib/models/scale';
 function Key({keyData, keyActive}: { keyData: KeyData, keyActive: boolean}) {
     return (
         <button key={keyData.char} className={`key key-${keyData.color} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}}>
-            {keyData.char.toUpperCase()}
+            <div>{keyData.char.toUpperCase()}</div>
+            <div className='text-sm'>{keyData.color !== 'none' ? keyData.n : '–'}</div>
         </button>
     )
 }
@@ -48,14 +49,25 @@ export default function Phone() {
 
     const handleSelectScale = (e: ChangeEvent<HTMLSelectElement>) => {
         const thisScaleName = e.target.value;
-        if (synth === null) initializeTone();
+        if (synth == null) initializeTone();
         fetch(`/scale/${thisScaleName}`)
         .then((r: Response) => r.json())
         .then((rJson) => {
-            console.log(rJson);
             setScale(new Scale(rJson.name, rJson.qwerty, rJson.edo));
-            setScaleName(thisScaleName)
+            setScaleName(thisScaleName);
+            e.target.blur();
         });
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.repeat) {return;}
+        setKeysActive(ka => new Set(ka).add(e.key))
+        scale?.play(synth, e, 'attack');
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+        setKeysActive(ka => (ka.delete(e.key), new Set(keysActive)));
+        scale?.play(synth, e, 'release');
     }
 
     useEffect(() => {
@@ -66,16 +78,14 @@ export default function Phone() {
         });
     }, []);
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.repeat) {return;}
-        setKeysActive(ka => new Set(ka).add(e.key))
-        scale?.play(synth, e, 'attack');
-    }
-
-    const handleKeyUp = (e: React.KeyboardEvent) => {
-        setKeysActive(ka => (ka.delete(e.key), new Set(keysActive)))
-        scale?.play(synth, e, 'release');
-    }
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        }
+    }, [scale, synth])
 
     return (
         <>
@@ -85,8 +95,6 @@ export default function Phone() {
                     <select
                         value={scaleName}
                         onChange={handleSelectScale}
-                        onKeyDown={handleKeyDown}
-                        onKeyUp={handleKeyUp}
                     >
                         <option disabled></option>
                         {scales.map((s) => (<option key={s} value={s}>{s}</option>))}

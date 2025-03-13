@@ -30,7 +30,7 @@ export default class Scale {
         return {char, color: 'none', n: 0}
     }
 
-    play(synth: Tone.PolySynth | null, e: React.KeyboardEvent, type: string) {
+    play(synth: Tone.PolySynth | null, e: KeyboardEvent, type: string) {
         if (synth == null || this.getKey(e.key) == null || this.getKey(e.key).color === 'none') {return;}
 
         const pitch = adjustByEdoStep(pitchC, this.edo, this.getKey(e.key).n);
