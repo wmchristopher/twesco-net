@@ -66,7 +66,7 @@ export default function Phone() {
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
-        setKeysActive(ka => (ka.delete(e.key), new Set(keysActive)));
+        setKeysActive(ka => (ka.delete(e.key), new Set(ka)));
         scale?.play(synth, e, 'release');
     }
 
