@@ -9,13 +9,15 @@ module.exports = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        tyre: "#7A004B",
-        parchment: "#FCECC9",
-        papyrus: "#F8FEEC",
-        slate: "#736B60",
-        sierra: "#F96900",
-        turquoise: "#4AE5E8"
+        mallow: "#8F5FB0",
+        spicebush: "#C3EB78",
+        periwinkle: "#78C3EB",
       },
+      fontFamily: {
+        ysabeau: ["Ysabeau", "sans-serif"],
+        cormorant: ["Cormorant", "serif"],
+        montserrat: ["Montserrat Alternates", "sans-serif"]
+      }
     },
   },
   safelist: [
@@ -24,5 +26,7 @@ module.exports = {
     "key-none",
     "key-active"
   ],
-  plugins: [],
+  plugins: [
+    require("@tailwindcss/typography")
+  ],
 }

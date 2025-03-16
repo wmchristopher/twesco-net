@@ -115,7 +115,7 @@ export default function Phone() {
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
-        setKeysActive(ka => (ka.delete(e.code), new Set(ka))); // Highlight key.
+        setKeysActive(ka => (ka.delete(e.code), new Set(ka))); // Un-highlight key.
         scale?.play(synth, e.code, 'release');                 // Release note.
     }
 
@@ -139,21 +139,19 @@ export default function Phone() {
     }, [scale, synth])
 
     return (
-        <>
-            <main>
-                <article className="m-4">
-                    <h1>Twescophone</h1>
-                    <select
-                        value={scaleName}
-                        onChange={handleSelectScale}
-                    >
-                        <option disabled></option>
-                        {scales.map((s) => (<option key={s} value={s}>{s}</option>))}
-                    </select>
-                    <br />
-                    <Qwerty scale={scale} keysActive={keysActive}/>
-                </article>
-            </main>
-        </>
+        <main style={{backgroundImage: 'url("/static/image.png")', backgroundRepeat: "repeat", backgroundSize: "417px 192px"}}
+              className="flex-grow p-8">
+            <article className="p-2 bg-white opacity-90 rounded-xl">
+                <select
+                    value={scaleName}
+                    onChange={handleSelectScale}
+                >
+                    <option disabled></option>
+                    {scales.map((s) => (<option key={s} value={s}>{s}</option>))}
+                </select>
+                <br />
+                <Qwerty scale={scale} keysActive={keysActive}/>
+            </article>
+        </main>
     );
 }

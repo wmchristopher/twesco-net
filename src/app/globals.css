@@ -3,42 +3,22 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply text-tyre bg-slate text-lg font-sans;
-  }
 }
 
 @layer components {
-  body > header {
-    @apply bg-turquoise border-slate border-4 text-slate p-4 text-4xl;
+  main {
+    @apply font-ysabeau;
   }
-
-  .logo {
-    @apply text-tyre;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-cormorant;
   }
-
-  article {
-    @apply bg-parchment p-4 rounded;
+  a {
+    @apply text-mallow;
   }
-
-  .key {
-    @apply m-2 px-3 py-2 rounded;
+  body header {
+    @apply bg-periwinkle text-3xl font-montserrat font-medium py-3;
   }
-
-  .key-white {
-    @apply bg-parchment;
-  }
-
-  .key-black {
-    @apply bg-tyre;
-    @apply text-parchment;
-  }
-
-  .key-none {
-    @apply bg-opacity-20 text-opacity-20 text-tyre;
-  }
-
-  .key-active {
-    @apply bg-papyrus;
+  body header a {
+    @apply text-white;
   }
 }
