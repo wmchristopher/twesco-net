@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react"
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "TWESCO",
@@ -22,9 +23,9 @@ export default function RootLayout({
       <Analytics />
       <body className="flex flex-col h-screen">
         <header className={`text-center`}>
-          <a className="logo" href='/'>
+          <Link className="logo" href='/'>
             TWESCO
-          </a>
+          </Link>
         </header>
         {children}
       </body>

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -12,7 +12,7 @@ export default function Home() {
           You have found Christopher Smith’s Internet meadow.
         </p>
         <p>
-          To play my microtonal synthesizer (in development), <a href="/synth">click here.</a>
+          To play my microtonal synthesizer (in development), <Link href="/synth">click here.</Link>
         </p>
         <p>
           For information about me, see my <a href="https://linkedin.com/in/wmchristopher">LinkedIn</a> and <a href="https://github.com/wmchristopher">Github</a>.

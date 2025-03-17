@@ -136,7 +136,7 @@ export default function Phone() {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         }
-    }, [scale, synth])
+    }, [scale, synth, handleKeyDown, handleKeyUp])
 
     return (
         <main style={{backgroundImage: 'url("/static/image.png")', backgroundRepeat: "repeat", backgroundSize: "417px 192px"}}
