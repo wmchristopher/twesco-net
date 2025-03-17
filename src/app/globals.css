@@ -16,9 +16,25 @@
     @apply text-mallow;
   }
   body header {
-    @apply bg-periwinkle text-3xl font-montserrat font-medium py-3;
+    @apply bg-robin/60 text-3xl font-montserrat font-medium py-3 border-2 border-robin/30;
   }
   body header a {
     @apply text-white;
+  }
+
+  .key {
+    @apply m-2 p-3 rounded opacity-100;
+  }
+  .key-white {
+    @apply text-white bg-mallow;
+  }
+  .key-black {
+    @apply text-white bg-clover;
+  }
+  .key-none {
+    @apply opacity-50;
+  }
+  .key-active {
+    @apply opacity-80;
   }
 }

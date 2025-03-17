@@ -43,7 +43,8 @@ export default class Scale {
     constructor(
         public name: string,
         public qwerty: {[key: string]: {[key: string]: number}},
-        public edo: number
+        public edo: number,
+        public info: string
     ) {}
 
     getKey(code: string | undefined): KeyData {

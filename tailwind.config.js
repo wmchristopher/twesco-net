@@ -9,9 +9,10 @@ module.exports = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        mallow: "#8F5FB0",
-        spicebush: "#C3EB78",
-        periwinkle: "#78C3EB",
+        mallow: "oklch(57% 0.1303 310.17 / <alpha-value>)",
+        clover: "oklch(57% 0.1303 159.35 / <alpha-value>)",
+        stereum: "oklch(57% 0.1303 38.45 / <alpha-value>)",
+        robin: "oklch(57% 0.1303 228.96 / <alpha-value>)",
       },
       fontFamily: {
         ysabeau: ["Ysabeau", "sans-serif"],

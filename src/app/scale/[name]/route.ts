@@ -10,7 +10,7 @@ export async function GET(
      */
     const { name } = await params;
     
-    const result = await sql`SELECT * FROM scale WHERE name = ${ name ?? '' }`
+    const result = await sql`SELECT * FROM scale WHERE name = ${ name ?? '' }::text`
 
     if (result[0] === undefined) {
         notFound();

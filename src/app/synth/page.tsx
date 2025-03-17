@@ -99,7 +99,7 @@ export default function Phone() {
         fetch(`/scale/${thisScaleName}`)
         .then((r: Response) => r.json())
         .then((rJson) => {
-            setScale(new Scale(rJson.name, rJson.qwerty, rJson.edo));
+            setScale(new Scale(rJson.name, rJson.qwerty, rJson.edo, rJson.info));
             setScaleName(thisScaleName);
             e.target.blur();
         });
@@ -141,16 +141,40 @@ export default function Phone() {
     return (
         <main style={{backgroundImage: 'url("/static/image.png")', backgroundRepeat: "repeat", backgroundSize: "417px 192px"}}
               className="flex-grow p-8">
-            <article className="p-2 bg-white opacity-90 rounded-xl">
-                <select
-                    value={scaleName}
-                    onChange={handleSelectScale}
-                >
-                    <option disabled></option>
-                    {scales.map((s) => (<option key={s} value={s}>{s}</option>))}
-                </select>
-                <br />
-                <Qwerty scale={scale} keysActive={keysActive}/>
+            <article>
+                <h1 className="hidden">
+                    Microtonal Synthesizer
+                </h1>
+                <div className="flex flex-row">
+                    <section className="m-2 p-3 bg-white/90 border-4 border-mallow/60 rounded-xl rounded-br-none flex-grow">
+                        <h2 className="hidden">
+                            Keyboard
+                        </h2>
+                        <select
+                            className="font-bold text-2xl font-cormorant text-mallow bg-transparent"
+                            value={scaleName}
+                            onChange={handleSelectScale}
+                        >
+                            <option disabled={scale != null}>Select a scale&hellip;</option>
+                            {scales.map((s) => (<option key={s} value={s}>{s}</option>))}
+                        </select>
+                        <br />
+                        <Qwerty scale={scale} keysActive={keysActive}/>
+                    </section>
+                    <section className={`m-2 p-3 bg-white/90 border-4 border-clover/60 rounded-xl rounded-bl-none flex-grow ${scale == null ? 'hidden' : ''}`}>
+                        <h2 className="font-bold text-2xl text-clover">
+                            Editor
+                        </h2>
+                    </section>
+                </div>
+                <section className={`m-2 p-3 bg-white/90 border-4 border-stereum/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
+                    <h2 className="font-bold text-2xl text-stereum">
+                        Scale Information
+                    </h2>
+                    <p>
+                        {scale?.info}
+                    </p>
+                </section>
             </article>
         </main>
     );
