@@ -47,13 +47,12 @@ export default class Scale {
         public info: string
     ) {}
 
-    getKey(code: string | undefined): KeyData {
+    #locateKey(code: string | undefined): string | undefined {
         /**
-         * Gets scale-specific data for a key.
+         * Gets location of a key within `qwerty`.  (In current implementation this means color string.)
          * 
          * @param code   Key code (e.g. 'KeyQ')
          */
-
         block: 
         if (code !== undefined) {
             const keyChar = getKeyFromCode(code)
@@ -62,13 +61,44 @@ export default class Scale {
             for (const [color, items] of Object.entries(this.qwerty)) {
                 // Iterates through all key colors in scale to see whether this key is included.
                 if (items[keyChar] !== undefined) {
-                    return {code, color, n: items[keyChar], edo: this.edo}
+                    return color;
                 }
             }
         }
+        return undefined;
+    }
 
+    getKey(code: string | undefined): KeyData {
+        /**
+         * Gets scale-specific data for a key.
+         * 
+         * @param code   Key code (e.g. 'KeyQ')
+         */
+        const color = this.#locateKey(code);
+
+        block:
+        if (code !== undefined && color !== undefined) {
+            const keyChar = getKeyFromCode(code)
+            if (keyChar == null) break block;
+
+            const n = this.qwerty[color][keyChar];
+            return {code, color, n, edo: this.edo}
+        }
         // If key is undefined or not included in scale, return this shell value.
         return {code: code ?? '', color: 'none', n: null, edo: null}
+    }
+
+    updateKey(code: string, n: number | null) {
+        /**
+         * Updates key tuning value.
+         * 
+         * @param code   Key code (e.g. 'KeyQ')
+         */
+        const color = this.#locateKey(code);
+        const key = getKeyFromCode(code)
+        if (color == null || key == null) return this;
+        this.qwerty[color][key] = n;
+        return this;
     }
 
     play(synth: Tone.PolySynth | null, code: string, type: string) {

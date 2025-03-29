@@ -1,12 +1,12 @@
 "use client"
 
 import * as Tone from 'tone';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
 import Scale, { KeyData } from '@/app/lib/models/scale';
 import { getCodeFromKey, getKeyFromCode } from '@/app/lib/models/key';
 
 
-function KeyButton({keyData, keyActive}: { keyData: KeyData, keyActive: boolean}) {
+function KeyButton({keyData, keyActive, setKeyEdited}: { keyData: KeyData, keyActive: boolean, setKeyEdited: Dispatch<SetStateAction<KeyData | null>> }) {
     /**
      * Displays button on virtual keyboard.
      * 
@@ -24,19 +24,20 @@ function KeyButton({keyData, keyActive}: { keyData: KeyData, keyActive: boolean}
     : '–'
 
     return (
-        <button key={keyData.code} className={`key key-${keyData.color} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}}>
+        <button key={keyData.code} className={`key key-${keyData.color} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}} onClick={() => setKeyEdited(keyData)}>
             <div>{getKeyFromCode(keyData.code)?.toUpperCase()}</div>
             <div className='text-sm'>{displayN}</div>
         </button>
     )
 }
 
-function Qwerty({scale, keysActive}: {scale: Scale | null, keysActive: Set<string>}) {
+function Qwerty({scale, keysActive, setKeyEdited}: {scale: Scale | null, keysActive: Set<string>, setKeyEdited: Dispatch<SetStateAction<KeyData | null>>}) {
     /**
      * Displays keyboard when scale is initialized.
      * 
      * @param scale         the scale object
      * @param keysActive    set of active (depressed) key codes
+     * @param setKeyEdited  function that sets a key to be edited
      */
 
     if (scale == null) {return (<></>)}
@@ -58,12 +59,34 @@ function Qwerty({scale, keysActive}: {scale: Scale | null, keysActive: Set<strin
                 <div key={idx} style={{display: "grid", gridTemplateColumns: "subgrid", gridColumn: `${idx + 1} / -1`}}>
                     {row.map(key =>
                         // KEY
-                        <KeyButton key={key} keyData={scale.getKey(getCodeFromKey(key))} keyActive={keysActive.has(getCodeFromKey(key) ?? '')} />
+                        <KeyButton key={key} keyData={scale.getKey(getCodeFromKey(key))} keyActive={keysActive.has(getCodeFromKey(key) ?? '')} setKeyEdited={setKeyEdited} />
                     )}
                 </div>
             )}
         </div>
     );
+}
+
+
+function KeyEditor ({keyData, scale, setScale}: {keyData: KeyData | null, scale: Scale | null, setScale: Dispatch<SetStateAction<Scale | null>>}) {
+    if (keyData == null) return (<></>);
+
+    const [keyN, setKeyN] = useState<number | string>(keyData.n ?? '')
+
+    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const n = event.target.valueAsNumber || '';
+        setScale(scale?.updateKey(keyData.code, n) ?? null);
+        setKeyN(n);
+    }
+
+    return (
+        <form>
+            <h3>
+                {getKeyFromCode(keyData.code)?.toUpperCase()}
+            </h3>
+            <input type="number" value={keyN} onChange={handleChange}></input>
+        </form>
+    )
 }
 
 
@@ -83,6 +106,9 @@ export default function Phone() {
 
     // Set of active (depressed) keys.
     const [keysActive, setKeysActive] = useState<Set<string>>(new Set([]))
+
+    // Key that is being edited.
+    const [keyEdited, setKeyEdited] = useState<KeyData | null>(null)
 
     const initializeTone = async () => {
         // Sets up the synthesizer with default settings.
@@ -159,12 +185,13 @@ export default function Phone() {
                             {scales.map((s) => (<option key={s} value={s}>{s}</option>))}
                         </select>
                         <br />
-                        <Qwerty scale={scale} keysActive={keysActive}/>
+                        <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
                     </section>
                     <section className={`m-2 p-3 bg-white/90 border-4 border-clover/60 rounded-xl rounded-bl-none flex-grow ${scale == null ? 'hidden' : ''}`}>
                         <h2 className="font-bold text-2xl text-clover">
                             Editor
                         </h2>
+                        <KeyEditor keyData={keyEdited} scale={scale} setScale={setScale} />
                     </section>
                 </div>
                 <section className={`m-2 p-3 bg-white/90 border-4 border-stereum/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
@@ -174,6 +201,9 @@ export default function Phone() {
                     <p>
                         {scale?.info}
                     </p>
+                    <code>
+                        {JSON.stringify(scale)}
+                    </code>
                 </section>
             </article>
         </main>
