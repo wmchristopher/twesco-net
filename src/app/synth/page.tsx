@@ -37,7 +37,7 @@ function KeyButton(
 
 function Qwerty(
     {scale, keysActive, setKeyEdited}: {
-        scale: Scale | null, 
+        scale: Scale, 
         keysActive: Set<string>,
         setKeyEdited: Dispatch<SetStateAction<string>>
     }
@@ -60,7 +60,14 @@ function Qwerty(
     const midRow = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"];
     const btmRow = ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'];
 
-    const chooseColor = (key: string) => scale.keys?.get(key) != null ? (midRow.includes(key) ? 'mallow' : 'clover') : 'none'
+    function chooseColor(key: string) {
+        const edoN = scale.keys?.get(key)
+        if (edoN == null)           return 'none';
+        if (edoN % scale.edo === 0) return 'stereum';
+        if (midRow.includes(key))   return 'mallow';
+        if (topRow.includes(key))   return 'clover';
+                                    return 'robin';
+    }
 
     return (
         // KEYBOARD
@@ -125,7 +132,7 @@ export default function Phone() {
     const [synth, setSynth] = useState<Tone.PolySynth | null>(null);
 
     // Scale object as defined by L and s fields.
-    const [scale, setScale] = useState<Scale | null>(null);
+    const [scale, setScale] = useState<Scale>(new Scale('Diatonic', 5, 2, [2, 1]));
 
     const [numL, setNumL] = useState<number>(5);
     const [numS, setNumS] = useState<number>(2);
@@ -141,12 +148,21 @@ export default function Phone() {
         // Sets up the synthesizer with default settings.
         // Must be triggered by user action.
         await Tone.start();
-        const newSynth = new Tone.PolySynth().toDestination();
+
+        const newSynth = new Tone.PolySynth(
+            Tone.MonoSynth, 
+            {
+                envelope: {attack: 0.01, decay: 0.3, release: 0.1, sustain: 0.7},
+                filterEnvelope: {attack: 0.01, decay: 0.3, release: 0.1, sustain: 0.7, baseFrequency: 'C3'},
+                volume: -10
+            }
+        ).toDestination();
         setSynth(newSynth);
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
         // User presses key down.  User may hold key to hold note.
+        if (synth == null) initializeTone();
 
         if (e.repeat || scale == null) return;  // Do nothing if this is a "repeat" keydown, i.e. a held note.
 
@@ -163,10 +179,12 @@ export default function Phone() {
     }
 
     const handleScaleChange = (setter: Dispatch<SetStateAction<number>>, type: string) => (event: ChangeEvent<HTMLInputElement>) => {
-        const newVal = parseInt(event.target.value);
-        setter(newVal);
+        let newVal = parseInt(event.target.value);
+        if (Number.isNaN(newVal)) return;
 
-        if (!synth) initializeTone();
+        newVal = Math.max(1, newVal);
+        newVal = Math.min(newVal, 10)
+        setter(newVal);
 
         switch (type) {
             case 'L':
@@ -183,8 +201,6 @@ export default function Phone() {
             parseInt(event.target.value.slice(-1))
         ] as [number, number];
         setRatio(newRatio);
-
-        if (!synth) initializeTone();
 
         setScale(new Scale('myScale', numL, numS, newRatio));
     }
