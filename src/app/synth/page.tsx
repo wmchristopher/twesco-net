@@ -60,7 +60,7 @@ function Qwerty(
     const midRow = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"];
     const btmRow = ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'];
 
-    const chooseColor = (key: string) => scale.keys?.get(key) != null ? (key in midRow ? 'mallow' : 'clover') : 'none'
+    const chooseColor = (key: string) => scale.keys?.get(key) != null ? (midRow.includes(key) ? 'mallow' : 'clover') : 'none'
 
     return (
         // KEYBOARD
@@ -221,8 +221,8 @@ export default function Phone() {
                         <h2 className="hidden">
                             Keyboard
                         </h2>
-                        <input type="number" value={numL} min={0} max={10} onChange={handleScaleChange(setNumL, 'L')}></input>
-                        <input type="number" value={numS} min={0} max={10} onChange={handleScaleChange(setNumS, 's')}></input>
+                        <input type="number" value={numL} min={1} max={10} onChange={handleScaleChange(setNumL, 'L')}></input>
+                        <input type="number" value={numS} min={1} max={10} onChange={handleScaleChange(setNumS, 's')}></input>
                         <select
                             className="bg-transparent"
                             value={ratio.toString()}

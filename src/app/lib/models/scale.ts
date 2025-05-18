@@ -55,23 +55,42 @@ export default class Scale {
         const topRow = ['w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'];
         const midRow = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"];
         const btmRow = ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'];
-        let edoN = 0;
-        let idx = -1; // will increment to 1
+
+        // both of these will pre-increment to 0
+        let edoN = -1;
+        let idx = -1;
 
         while (idx < midRow.length)
-        switch (ratio.toString()) {
-            case '2,1':
-                for (let step of this.#scale) {
-                    if (++idx >= midRow.length) break;
-                    this.#keys.set(midRow[idx], edoN++);
-                    if (step === 'L') {
-                        this.#keys.set(topRow[idx], edoN++)
-                    }
+            for (let step of this.#scale) {
+                if (++idx >= midRow.length) break;
+
+                switch (ratio.toString()) {
+                    case '2,1':
+                        this.#keys.set(midRow[idx], ++edoN);
+                        if (step === 'L') 
+                            this.#keys.set(topRow[idx], ++edoN);
+                        break;
+                    case '3,1':
+                        this.#keys.set(midRow[idx], ++edoN);
+                        if (step === 'L') {
+                            ++edoN;
+                            if (idx < btmRow.length)
+                                this.#keys.set(btmRow[idx], edoN);
+                            this.#keys.set(topRow[idx], ++edoN);
+                        }
+                        break;
+                    case '3,2':
+                        this.#keys.set(midRow[idx], ++edoN);
+                        ++edoN;
+                        if (idx < btmRow.length)
+                            this.#keys.set(btmRow[idx], edoN);
+                        if (step === 'L')
+                            this.#keys.set(topRow[idx], ++edoN);
+                        break;
+                    default:
+                        idx = midRow.length;
                 }
-                break;
-            default:
-                idx = midRow.length;
-        }
+            }
     }
 
     get edo() {
