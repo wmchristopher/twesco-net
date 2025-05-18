@@ -16,7 +16,7 @@
     @apply text-mallow;
   }
   body header {
-    @apply bg-robin/60 text-3xl font-montserrat font-medium py-3 border-2 border-robin/30;
+    @apply bg-robin/70 text-3xl font-montserrat font-medium py-3 border-2 border-robin/30;
   }
   body header a {
     @apply text-white;
