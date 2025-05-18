@@ -22,8 +22,10 @@ module.exports = {
     },
   },
   safelist: [
-    "key-white",
-    "key-black",
+    "key-mallow",
+    "key-clover",
+    "key-stereum",
+    "key-robin",
     "key-none",
     "key-active"
   ],

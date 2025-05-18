@@ -1,6 +1,6 @@
 'use client'
 
-import * as Tone from 'tone'
+import * as Tone from 'tone';
 import { getKeyFromCode } from './key';
 
 // Sets a baseline pitch based on C in 12-TET.
@@ -17,88 +17,68 @@ function adjustByEdoStep(freq: number, edo: number, step: number) {
     return freq * (2 ** (step / edo));
 }
 
-export interface KeyData {
-    /**
-     * Scale-specific key data.  Does not include whether key is active because that does not inhere in the scale.
-     * 
-     * @param code      The key code (e.g. 'KeyQ')
-     * @param color     Sets color.  Used to distinguish scale degrees from accidentals.
-     * @param n         Nth degree of EDO.  Root is zero.  Null for inequal scales.
-     * @param edo       How many Equal Divisions of the Octave.  Null for inequal scales.
-     */
-    code: string,
-    color: string,
-    n: number | null,
-    edo: number | null
-}
-
 export default class Scale {
     /**
      * Defines a scale.
      * 
      * @param name      Name of scale.
-     * @param qwerty    JSON for keyboard layout
-     * @param edo       How many EDO
+     * @param numL      How many long steps
+     * @param numS      How many short steps
+     * @param ratio     L : s
      */
+    #edo: number;
+    #scale: string[];
+    #keys: Map<string, number>;
+
     constructor(
         public name: string,
-        public qwerty: {[key: string]: {[key: string]: number}},
-        public edo: number,
-        public info: string
-    ) {}
+        public numL: number,
+        public numS: number,
+        public ratio: [number, number]
+    ) {
+        this.#edo = numL * ratio[0] + numS * ratio[1];
 
-    #locateKey(code: string | undefined): string | undefined {
-        /**
-         * Gets location of a key within `qwerty`.  (In current implementation this means color string.)
-         * 
-         * @param code   Key code (e.g. 'KeyQ')
-         */
-        block: 
-        if (code !== undefined) {
-            const keyChar = getKeyFromCode(code)
-            if (keyChar == null) {break block;}
-
-            for (const [color, items] of Object.entries(this.qwerty)) {
-                // Iterates through all key colors in scale to see whether this key is included.
-                if (items[keyChar] !== undefined) {
-                    return color;
-                }
+        // Generate scale pattern.
+        this.#scale = []
+        const total = numL + numS;
+        for (let i = 0; i < total; i++) {
+            if ((i * numS) % total < numS) {
+                this.#scale.push('s')
+            } else {
+                this.#scale.push('L')
             }
         }
-        return undefined;
-    }
 
-    getKey(code: string | undefined): KeyData {
-        /**
-         * Gets scale-specific data for a key.
-         * 
-         * @param code   Key code (e.g. 'KeyQ')
-         */
-        const color = this.#locateKey(code);
+        this.#keys = new Map();
 
-        block:
-        if (code !== undefined && color !== undefined) {
-            const keyChar = getKeyFromCode(code)
-            if (keyChar == null) break block;
+        const numRow = ['2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '='];
+        const topRow = ['w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']'];
+        const midRow = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"];
+        const btmRow = ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'];
+        let edoN = 0;
+        let idx = -1; // will increment to 1
 
-            const n = this.qwerty[color][keyChar];
-            return {code, color, n, edo: this.edo}
+        while (idx < midRow.length)
+        switch (ratio.toString()) {
+            case '2,1':
+                for (let step of this.#scale) {
+                    if (++idx >= midRow.length) break;
+                    this.#keys.set(midRow[idx], edoN++);
+                    if (step === 'L') {
+                        this.#keys.set(topRow[idx], edoN++)
+                    }
+                }
+                break;
+            default:
+                idx = midRow.length;
         }
-        // If key is undefined or not included in scale, return this shell value.
-        return {code: code ?? '', color: 'none', n: null, edo: null}
     }
 
-    updateKey(code: string, n: number | null) {
-        /**
-         * Updates key tuning value.
-         * 
-         * @param code   Key code (e.g. 'KeyQ')
-         */
-        const color = this.#locateKey(code);
-        const key = getKeyFromCode(code)
-        if (color == null || key == null) return this;
-        this.qwerty[color][key] = n;
-        return this;
+    get edo() {
+        return this.#edo;
+    }
+    get keys() {
+        return this.#keys;
     }
 
     play(synth: Tone.PolySynth | null, code: string, type: string) {
@@ -106,23 +86,29 @@ export default class Scale {
          * Handles synth events.
          * 
          * @param synth     Synth object to play
-         * @param code      Key code (e.g. 'KeyQ')
+         * @param code       Key pressed (e.g. 'KeyQ')
          * @param type      e.g. attack, release
          */
 
         // validate input
-        if (synth == null || this.getKey(code) == null || this.getKey(code).color === 'none') {return;}
+        if (synth == null) return;
 
-        // get pitch to play
-        const pitch = adjustByEdoStep(pitchC, this.edo, this.getKey(code).n ?? 0);
+        const key = getKeyFromCode(code)
 
-        switch (type) {
-            case 'attack':
-                synth.triggerAttack(pitch);
-                return;
-            case 'release':
-                synth.triggerRelease(pitch);
-                return;
+        const edoN = this.#keys.get(key ?? '')
+
+        if (edoN != null) {
+            // get pitch to play
+            const pitch = adjustByEdoStep(pitchC, this.edo, edoN);
+
+            switch (type) {
+                case 'attack':
+                    synth.triggerAttack(pitch);
+                    return;
+                case 'release':
+                    synth.triggerRelease(pitch);
+                    return;
+            }
         }
     }
 }

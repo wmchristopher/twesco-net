@@ -2,36 +2,46 @@
 
 import * as Tone from 'tone';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import Scale, { KeyData } from '@/app/lib/models/scale';
+import Scale from '@/app/lib/models/scale';
 import { getCodeFromKey, getKeyFromCode } from '@/app/lib/models/key';
 
 
-function KeyButton({keyData, keyActive, setKeyEdited}: { keyData: KeyData, keyActive: boolean, setKeyEdited: Dispatch<SetStateAction<KeyData | null>> }) {
+function KeyButton(
+    {keyChar, edoN, color, keyActive, setKeyEdited, edo}: { 
+        keyChar: string, 
+        edoN: number | undefined,
+        color: string,
+        keyActive: boolean, 
+        setKeyEdited: Dispatch<SetStateAction<string>>,
+        edo: number
+    }
+) {
     /**
      * Displays button on virtual keyboard.
      * 
-     * @param keyData      scale-specific data for this key, defined by KeyData interface, q.v.
+     * @param keyChar      scale-specific data for this key, defined by KeyData interface, q.v.
+     * @param edoN         which EDOstep
+     * @param color        what color the key is
      * @param keyActive    whether this key is depressed (sets class that marks it to be highlighted)
+     * @param setKeyEdited displays editor fields for this key
+     * @param edo          num EDO
      */
 
-    // Displays the scale degree index if the note is defined according to an EDO.
-    const displayN = (
-        keyData.color !== 'none' 
-        && keyData.n != null 
-        && keyData.edo != null
-    ) 
-    ? keyData.n % keyData.edo 
-    : '–'
-
     return (
-        <button key={keyData.code} className={`key key-${keyData.color} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}} onClick={() => setKeyEdited(keyData)}>
-            <div>{getKeyFromCode(keyData.code)?.toUpperCase()}</div>
-            <div className='text-sm'>{displayN}</div>
+        <button key={keyChar} className={`key key-${color} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}} onClick={() => setKeyEdited(keyChar)}>
+            <div>{keyChar.toUpperCase()}</div>
+            <div className='text-sm'>{edoN == null ? '–' : edoN % edo}</div>
         </button>
     )
 }
 
-function Qwerty({scale, keysActive, setKeyEdited}: {scale: Scale | null, keysActive: Set<string>, setKeyEdited: Dispatch<SetStateAction<KeyData | null>>}) {
+function Qwerty(
+    {scale, keysActive, setKeyEdited}: {
+        scale: Scale | null, 
+        keysActive: Set<string>,
+        setKeyEdited: Dispatch<SetStateAction<string>>
+    }
+) {
     /**
      * Displays keyboard when scale is initialized.
      * 
@@ -50,6 +60,8 @@ function Qwerty({scale, keysActive, setKeyEdited}: {scale: Scale | null, keysAct
     const midRow = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"];
     const btmRow = ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'];
 
+    const chooseColor = (key: string) => scale.keys?.get(key) != null ? (key in midRow ? 'mallow' : 'clover') : 'none'
+
     return (
         // KEYBOARD
         <div style={{display: 'grid', gridTemplateColumns: 'repeat(25, max-content)'}}>
@@ -57,9 +69,10 @@ function Qwerty({scale, keysActive, setKeyEdited}: {scale: Scale | null, keysAct
                 // ROW
                 // Standard keyboards happen to be set up so that `idx` can be both `key` and a horizontal grid offset.
                 <div key={idx} style={{display: "grid", gridTemplateColumns: "subgrid", gridColumn: `${idx + 1} / -1`}}>
-                    {row.map(key =>
+                    {row.map((key, jdx) =>
                         // KEY
-                        <KeyButton key={key} keyData={scale.getKey(getCodeFromKey(key))} keyActive={keysActive.has(getCodeFromKey(key) ?? '')} setKeyEdited={setKeyEdited} />
+                        <KeyButton key={key} keyChar={key} keyActive={keysActive.has(getCodeFromKey(key) ?? '')}
+                                   setKeyEdited={setKeyEdited} color={chooseColor(key)} edoN={scale.keys?.get(key)} edo={scale.edo} />
                     )}
                 </div>
             )}
@@ -68,15 +81,23 @@ function Qwerty({scale, keysActive, setKeyEdited}: {scale: Scale | null, keysAct
 }
 
 
-function KeyEditor ({keyData, scale, setScale}: {keyData: KeyData | null, scale: Scale | null, setScale: Dispatch<SetStateAction<Scale | null>>}) {
+function KeyEditor ({keyData, scale, setScale, synth}: {keyData: KeyData | null, scale: Scale | null, setScale: Dispatch<SetStateAction<Scale | null>>, synth: Tone.PolySynth | null}) {
     if (keyData == null) return (<></>);
 
-    const [keyN, setKeyN] = useState<number | string>(keyData.n ?? '')
+    const [keyN, setKeyN] = useState<number | string>(keyData.n ?? '');
+    const [keyColor, setKeyColor] = useState<string>(keyData.color ?? 'mallow');
 
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const n = event.target.valueAsNumber || '';
-        setScale(scale?.updateKey(keyData.code, n) ?? null);
+    const handleChangeN = (event: ChangeEvent<HTMLInputElement>) => {
+        synth?.releaseAll();
+        const n = event.target.valueAsNumber ?? '';
+        setScale(scale?.updateKeyPitch(keyData.code, n) ?? null);
         setKeyN(n);
+    }
+
+    const handleChangeColor = (event: ChangeEvent<HTMLSelectElement>) => {
+        const color = event.target.value;
+        setScale(scale?.updateKeyColor(keyData.code, color) || null);
+        setKeyColor(color);
     }
 
     return (
@@ -84,7 +105,15 @@ function KeyEditor ({keyData, scale, setScale}: {keyData: KeyData | null, scale:
             <h3>
                 {getKeyFromCode(keyData.code)?.toUpperCase()}
             </h3>
-            <input type="number" value={keyN} onChange={handleChange}></input>
+            <code>
+                {JSON.stringify(keyData)}
+            </code>
+            <label>N\EDO</label>
+            <input type="number" value={keyN || 0} onChange={handleChangeN}></input>
+            <label>Color</label>
+            <select value={keyColor} onChange={handleChangeColor}>
+                {['mallow', 'clover', 'stereum', 'robin'].map((s) => (<option key={s} value={s}>{s}</option>))}
+            </select>
         </form>
     )
 }
@@ -95,14 +124,12 @@ export default function Phone() {
     // Synth object that will be initialized and played.
     const [synth, setSynth] = useState<Tone.PolySynth | null>(null);
 
-    // Scale object that may be selected from menu or customized by user.
+    // Scale object as defined by L and s fields.
     const [scale, setScale] = useState<Scale | null>(null);
 
-    // Scale selected in the menu.
-    const [scaleName, setScaleName] = useState<string>("");
-
-    // Preset scales selectable by user.
-    const [scales, setScales] = useState<Array<string>>([]);
+    const [numL, setNumL] = useState<number>(5);
+    const [numS, setNumS] = useState<number>(2);
+    const [ratio, setRatio] = useState<[number, number]>([2,1]);
 
     // Set of active (depressed) keys.
     const [keysActive, setKeysActive] = useState<Set<string>>(new Set([]))
@@ -118,41 +145,59 @@ export default function Phone() {
         setSynth(newSynth);
     }
 
-    const handleSelectScale = (e: ChangeEvent<HTMLSelectElement>) => {
-        // User chooses preset scale.
-        const thisScaleName = e.target.value;
-        if (synth == null) initializeTone();
-        fetch(`/scale/${thisScaleName}`)
-        .then((r: Response) => r.json())
-        .then((rJson) => {
-            setScale(new Scale(rJson.name, rJson.qwerty, rJson.edo, rJson.info));
-            setScaleName(thisScaleName);
-            e.target.blur();
-        });
-    }
-
     const handleKeyDown = (e: KeyboardEvent) => {
         // User presses key down.  User may hold key to hold note.
 
-        if (e.repeat) {return;}  // Do nothing if this is a "repeat" keydown, i.e. a held note.
+        if (e.repeat || scale == null) return;  // Do nothing if this is a "repeat" keydown, i.e. a held note.
 
         setKeysActive(ka => new Set(ka).add(e.code))  // Highlight key.
-        scale?.play(synth, e.code, 'attack');         // Play note.
+
+        scale.play(synth, e.code, 'attack');         // Play note.
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
+        if (scale == null) return;
+
         setKeysActive(ka => (ka.delete(e.code), new Set(ka))); // Un-highlight key.
-        scale?.play(synth, e.code, 'release');                 // Release note.
+        scale.play(synth, e.code, 'release');                 // Release note.
     }
 
-    useEffect(() => {
-        // Fetch preset scales from API.
-        fetch('/scale/')
-        .then((r: Response) => r.json())
-        .then((rJson) => {
-            setScales(rJson.map((s: Scale) => s.name))
-        });
-    }, []);
+    const handleScaleChange = (setter: Dispatch<SetStateAction<number>>, type: string) => (event: ChangeEvent<HTMLInputElement>) => {
+        const newVal = parseInt(event.target.value);
+        setter(newVal);
+
+        if (!synth) initializeTone();
+
+        switch (type) {
+            case 'L':
+                setScale(new Scale('myScale', newVal, numS, ratio));
+                return;
+            case 's':
+                setScale(new Scale('myScale', numL, newVal, ratio));
+        }
+    }
+
+    const handleRatioChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        const newRatio = [
+            parseInt(event.target.value[0]),
+            parseInt(event.target.value.slice(-1))
+        ] as [number, number];
+        setRatio(newRatio);
+
+        if (!synth) initializeTone();
+
+        setScale(new Scale('myScale', numL, numS, newRatio));
+    }
+    const ratios = [[3,1],[2,1],[3,2]];
+
+    // useEffect(() => {
+    //     // Fetch preset scales from API.
+    //     fetch('/edo/')
+    //     .then((r: Response) => r.json())
+    //     .then((rJson) => {
+    //         setEdos(rJson.map((e: any) => e.edo))
+    //     });
+    // }, []);
 
     useEffect(() => {
         // Add window-scope event listeners for key events.
@@ -176,13 +221,14 @@ export default function Phone() {
                         <h2 className="hidden">
                             Keyboard
                         </h2>
+                        <input type="number" value={numL} min={0} max={10} onChange={handleScaleChange(setNumL, 'L')}></input>
+                        <input type="number" value={numS} min={0} max={10} onChange={handleScaleChange(setNumS, 's')}></input>
                         <select
-                            className="font-bold text-2xl font-cormorant text-mallow bg-transparent"
-                            value={scaleName}
-                            onChange={handleSelectScale}
+                            className="bg-transparent"
+                            value={ratio.toString()}
+                            onChange={handleRatioChange}
                         >
-                            <option disabled={scale != null}>Select a scale&hellip;</option>
-                            {scales.map((s) => (<option key={s} value={s}>{s}</option>))}
+                            {ratios.map((r) => (<option key={r.toString()} value={r.toString()}>{r.toString()}</option>))}
                         </select>
                         <br />
                         <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
@@ -191,7 +237,7 @@ export default function Phone() {
                         <h2 className="font-bold text-2xl text-clover">
                             Editor
                         </h2>
-                        <KeyEditor keyData={keyEdited} scale={scale} setScale={setScale} />
+                        <KeyEditor keyData={keyEdited} scale={scale} setScale={setScale} synth={synth} />
                     </section>
                 </div>
                 <section className={`m-2 p-3 bg-white/90 border-4 border-stereum/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
@@ -199,7 +245,7 @@ export default function Phone() {
                         Scale Information
                     </h2>
                     <p>
-                        {scale?.info}
+                        Scale Info
                     </p>
                     <code>
                         {JSON.stringify(scale)}

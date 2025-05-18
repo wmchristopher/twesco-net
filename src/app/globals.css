@@ -25,12 +25,19 @@
   .key {
     @apply m-2 p-3 rounded opacity-100;
   }
-  .key-white {
+  .key-mallow {
     @apply text-white bg-mallow;
   }
-  .key-black {
+  .key-clover {
     @apply text-white bg-clover;
   }
+  .key-stereum {
+    @apply text-white bg-stereum;
+  }
+  .key-robin {
+    @apply text-white bg-robin;
+  }
+
   .key-none {
     @apply opacity-50;
   }
