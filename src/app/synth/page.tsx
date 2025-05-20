@@ -26,11 +26,19 @@ function KeyButton(
      * @param setKeyEdited displays editor fields for this key
      * @param edo          num EDO
      */
-
+    const n = edoN == null ? null : edoN % edo;
+    const cents = n == null ? null : n * 1200 / edo;
     return (
         <button key={keyChar} className={`key key-${color} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}} onClick={() => setKeyEdited(keyChar)}>
-            <div>{keyChar.toUpperCase()}</div>
-            <div className='text-sm'>{edoN == null ? '–' : edoN % edo}</div>
+            <div className='flex flex-row justify-between'>
+                <span className={`font-ysabeauInfant ${n != null && 'font-bold'}`}>
+                    {n ?? '–'}
+                </span>
+                <span className='font-extralight'>
+                    {keyChar.toUpperCase()}
+                </span>
+            </div>
+            <div className='text-xs mt-3 font-light font-ysabeauInfant'>{cents?.toFixed(2)?.concat('¢') ?? '–'}</div>
         </button>
     )
 }
@@ -132,11 +140,7 @@ export default function Phone() {
     const [synth, setSynth] = useState<Tone.PolySynth | null>(null);
 
     // Scale object as defined by L and s fields.
-    const [scale, setScale] = useState<Scale>(new Scale('Diatonic', 5, 2, [2, 1]));
-
-    const [numL, setNumL] = useState<number>(5);
-    const [numS, setNumS] = useState<number>(2);
-    const [ratio, setRatio] = useState<[number, number]>([2,1]);
+    const [scale, setScale] = useState<Scale>(new Scale('Diatonic', 5, 2, [2, 1], 6));
 
     // Set of active (depressed) keys.
     const [keysActive, setKeysActive] = useState<Set<string>>(new Set([]))
@@ -178,20 +182,19 @@ export default function Phone() {
         scale.play(synth, e.code, 'release');                 // Release note.
     }
 
-    const handleScaleChange = (setter: Dispatch<SetStateAction<number>>, type: string) => (event: ChangeEvent<HTMLInputElement>) => {
+    const handleScaleChange = (type: string) => (event: ChangeEvent<HTMLInputElement>) => {
         let newVal = parseInt(event.target.value);
         if (Number.isNaN(newVal)) return;
 
         newVal = Math.max(1, newVal);
         newVal = Math.min(newVal, 10)
-        setter(newVal);
 
         switch (type) {
             case 'L':
-                setScale(new Scale('myScale', newVal, numS, ratio));
+                setScale(new Scale('myScale', newVal, scale.numS, scale.ratio, scale.mode));
                 return;
             case 's':
-                setScale(new Scale('myScale', numL, newVal, ratio));
+                setScale(new Scale('myScale', scale.numL, newVal, scale.ratio, scale.mode));
         }
     }
 
@@ -200,11 +203,16 @@ export default function Phone() {
             parseInt(event.target.value[0]),
             parseInt(event.target.value.slice(-1))
         ] as [number, number];
-        setRatio(newRatio);
 
-        setScale(new Scale('myScale', numL, numS, newRatio));
+        setScale(new Scale('myScale', scale.numL, scale.numS, newRatio, scale.mode));
     }
     const ratios = [[3,1],[2,1],[3,2]];
+
+    const handleModeChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const newMode = parseInt(event.target.value);
+        if (Number.isNaN(newMode)) return;
+        setScale(prev => new Scale(prev.name, prev.numL, prev.numS, prev.ratio, newMode));
+    }
 
     // useEffect(() => {
     //     // Fetch preset scales from API.
@@ -237,15 +245,16 @@ export default function Phone() {
                         <h2 className="hidden">
                             Keyboard
                         </h2>
-                        <input type="number" value={numL} min={1} max={10} onChange={handleScaleChange(setNumL, 'L')}></input>
-                        <input type="number" value={numS} min={1} max={10} onChange={handleScaleChange(setNumS, 's')}></input>
+                        <input type="number" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
+                        <input type="number" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
                         <select
                             className="bg-transparent"
-                            value={ratio.toString()}
+                            value={scale.ratio.toString()}
                             onChange={handleRatioChange}
                         >
-                            {ratios.map((r) => (<option key={r.toString()} value={r.toString()}>{r.toString()}</option>))}
+                            {ratios.map((r) => (<option key={r.toString()} value={r.toString()}>{r.toString().replace(',', ':')}</option>))}
                         </select>
+                        <input type="number" value={scale.mode}onChange={handleModeChange}></input>
                         <br />
                         <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
                     </section>

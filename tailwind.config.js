@@ -12,10 +12,11 @@ module.exports = {
         mallow: "oklch(57% 0.13 315 / <alpha-value>)",
         clover: "oklch(57% 0.13 160 / <alpha-value>)",
         stereum: "oklch(60% 0.15 38 / <alpha-value>)",
-        robin: "oklch(67% 0.11 235 / <alpha-value>)",
+        robin: "oklch(65% 0.09 235 / <alpha-value>)",
       },
       fontFamily: {
         ysabeau: ["Ysabeau", "sans-serif"],
+        ysabeauInfant: ["Ysabeau Infant", "sans-serif"],
         cormorant: ["Cormorant", "serif"],
         montserrat: ["Montserrat Alternates", "sans-serif"]
       }

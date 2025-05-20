@@ -29,14 +29,18 @@ export default class Scale {
     #edo: number;
     #scale: string[];
     #keys: Map<string, number>;
+    #mode: number;
 
     constructor(
         public name: string,
         public numL: number,
         public numS: number,
-        public ratio: [number, number]
+        public ratio: [number, number],
+        mode?: number
     ) {
+        const numLS = numL + numS;
         this.#edo = numL * ratio[0] + numS * ratio[1];
+        this.#mode = (((mode ?? 0) % numLS) + numLS) % numLS;
 
         // Generate scale pattern.
         this.#scale = []
@@ -48,6 +52,8 @@ export default class Scale {
                 this.#scale.push('L')
             }
         }
+
+        this.#scale = this.#scale.slice(this.#mode).concat(this.#scale.slice(0, this.#mode));
 
         this.#keys = new Map();
 
@@ -98,6 +104,14 @@ export default class Scale {
     }
     get keys() {
         return this.#keys;
+    }
+
+    get mode() {
+        return this.#mode;
+    }
+    set mode(n) {
+        this.#mode = n % this.#edo;
+        console.log(this.#mode)
     }
 
     play(synth: Tone.PolySynth | null, code: string, type: string) {
