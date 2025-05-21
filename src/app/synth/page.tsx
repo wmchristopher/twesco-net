@@ -183,6 +183,7 @@ export default function Phone() {
     }
 
     const handleScaleChange = (type: string) => (event: ChangeEvent<HTMLInputElement>) => {
+        synth?.releaseAll();
         let newVal = parseInt(event.target.value);
         if (Number.isNaN(newVal)) return;
 
@@ -199,6 +200,7 @@ export default function Phone() {
     }
 
     const handleRatioChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        synth?.releaseAll();
         const newRatio = [
             parseInt(event.target.value[0]),
             parseInt(event.target.value.slice(-1))
@@ -206,9 +208,10 @@ export default function Phone() {
 
         setScale(new Scale('myScale', scale.numL, scale.numS, newRatio, scale.mode));
     }
-    const ratios = [[3,1],[2,1],[3,2]];
+    const ratios = [[4,1],[3,1],[2,1],[4,2],[3,2],[4,3]];
 
     const handleModeChange = (event: ChangeEvent<HTMLInputElement>) => {
+        synth?.releaseAll();
         const newMode = parseInt(event.target.value);
         if (Number.isNaN(newMode)) return;
         setScale(prev => new Scale(prev.name, prev.numL, prev.numS, prev.ratio, newMode));

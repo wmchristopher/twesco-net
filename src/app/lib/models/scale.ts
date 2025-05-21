@@ -66,35 +66,28 @@ export default class Scale {
         let edoN = -1;
         let idx = -1;
 
+        const [ratioL, ratioS] = ratio
+
         while (idx < midRow.length)
             for (let step of this.#scale) {
                 if (++idx >= midRow.length) break;
-
-                switch (ratio.toString()) {
-                    case '2,1':
-                        this.#keys.set(midRow[idx], ++edoN);
-                        if (step === 'L') 
-                            this.#keys.set(topRow[idx], ++edoN);
-                        break;
-                    case '3,1':
-                        this.#keys.set(midRow[idx], ++edoN);
-                        if (step === 'L') {
-                            ++edoN;
-                            if (idx < btmRow.length)
-                                this.#keys.set(btmRow[idx], edoN);
-                            this.#keys.set(topRow[idx], ++edoN);
-                        }
-                        break;
-                    case '3,2':
-                        this.#keys.set(midRow[idx], ++edoN);
+                const stepSize = step === 'L' ? ratioL : ratioS
+                
+                this.#keys.set(midRow[idx], ++edoN);
+                switch (stepSize) {
+                    case 4:
+                        this.#keys.set(numRow[idx], ++edoN)
+                    case 3:
                         ++edoN;
                         if (idx < btmRow.length)
                             this.#keys.set(btmRow[idx], edoN);
-                        if (step === 'L')
-                            this.#keys.set(topRow[idx], ++edoN);
-                        break;
-                    default:
-                        idx = midRow.length;
+                    case 2:
+                        if (step === 's' && ratio.toString() === '3,2') {
+                            ++edoN;
+                            if (idx < btmRow.length)
+                                this.#keys.set(btmRow[idx], edoN);
+                        } else
+                            this.keys.set(topRow[idx], ++edoN);
                 }
             }
     }
@@ -111,7 +104,6 @@ export default class Scale {
     }
     set mode(n) {
         this.#mode = n % this.#edo;
-        console.log(this.#mode)
     }
 
     play(synth: Tone.PolySynth | null, code: string, type: string) {
