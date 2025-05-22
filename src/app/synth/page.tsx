@@ -2,40 +2,36 @@
 
 import * as Tone from 'tone';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import Scale from '@/app/lib/models/scale';
+import Scale, { KeyData } from '@/app/lib/models/scale';
 import { getCodeFromKey, getKeyFromCode } from '@/app/lib/models/key';
 
 
 function KeyButton(
-    {keyChar, edoN, color, keyActive, setKeyEdited, edo}: { 
-        keyChar: string, 
-        edoN: number | undefined,
-        color: string,
+    {data, keyActive, setKeyEdited, edo}: { 
+        data: KeyData
         keyActive: boolean, 
-        setKeyEdited: Dispatch<SetStateAction<string>>,
+        setKeyEdited: Dispatch<SetStateAction<KeyData | null>>,
         edo: number
     }
 ) {
     /**
      * Displays button on virtual keyboard.
      * 
-     * @param keyChar      scale-specific data for this key, defined by KeyData interface, q.v.
-     * @param edoN         which EDOstep
-     * @param color        what color the key is
+     * @param data         see KeyData
      * @param keyActive    whether this key is depressed (sets class that marks it to be highlighted)
      * @param setKeyEdited displays editor fields for this key
      * @param edo          num EDO
      */
-    const n = edoN == null ? null : edoN % edo;
+    const n = data.n == null ? null : data.n % edo;
     const cents = n == null ? null : n * 1200 / edo;
     return (
-        <button key={keyChar} className={`key key-${color} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}} onClick={() => setKeyEdited(keyChar)}>
+        <button key={data.char} className={`key key-${data.color ?? 'none'} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}} onClick={() => setKeyEdited(data)}>
             <div className='flex flex-row justify-between'>
                 <span className={`font-ysabeauInfant ${n != null && 'font-bold'}`}>
                     {n ?? '–'}
                 </span>
                 <span className='font-extralight'>
-                    {keyChar.toUpperCase()}
+                    {data.char.toUpperCase()}
                 </span>
             </div>
             <div className='text-xs mt-3 font-light font-ysabeauInfant'>{cents?.toFixed(2)?.concat('¢') ?? '–'}</div>
@@ -47,7 +43,7 @@ function Qwerty(
     {scale, keysActive, setKeyEdited}: {
         scale: Scale, 
         keysActive: Set<string>,
-        setKeyEdited: Dispatch<SetStateAction<string>>
+        setKeyEdited: Dispatch<SetStateAction<KeyData | null>>
     }
 ) {
     /**
@@ -68,26 +64,17 @@ function Qwerty(
     const midRow = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'"];
     const btmRow = ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'];
 
-    function chooseColor(key: string) {
-        const edoN = scale.keys?.get(key)
-        if (edoN == null)           return 'none';
-        if (edoN % scale.edo === 0) return 'stereum';
-        if (midRow.includes(key))   return 'mallow';
-        if (topRow.includes(key))   return 'clover';
-                                    return 'robin';
-    }
-
     return (
         // KEYBOARD
-        <div style={{display: 'grid', gridTemplateColumns: 'repeat(25, max-content)'}}>
+        <div className="font-ysabeauInfant" style={{display: 'grid', gridTemplateColumns: 'repeat(25, max-content)'}}>
             {[numRow, topRow, midRow, btmRow].map((row, idx) => 
                 // ROW
                 // Standard keyboards happen to be set up so that `idx` can be both `key` and a horizontal grid offset.
                 <div key={idx} style={{display: "grid", gridTemplateColumns: "subgrid", gridColumn: `${idx + 1} / -1`}}>
                     {row.map((key, jdx) =>
                         // KEY
-                        <KeyButton key={key} keyChar={key} keyActive={keysActive.has(getCodeFromKey(key) ?? '')}
-                                   setKeyEdited={setKeyEdited} color={chooseColor(key)} edoN={scale.keys?.get(key)} edo={scale.edo} />
+                        <KeyButton key={key} data={scale.getKey(key)} keyActive={keysActive.has(getCodeFromKey(key) ?? '')}
+                                   setKeyEdited={setKeyEdited} edo={scale.edo} />
                     )}
                 </div>
             )}
@@ -96,8 +83,8 @@ function Qwerty(
 }
 
 
-function KeyEditor ({keyData, scale, setScale, synth}: {keyData: KeyData | null, scale: Scale | null, setScale: Dispatch<SetStateAction<Scale | null>>, synth: Tone.PolySynth | null}) {
-    if (keyData == null) return (<></>);
+function KeyEditor ({keyData, scale, setScale, synth}: {keyData: KeyData | null, scale: Scale | null, setScale: Dispatch<SetStateAction<Scale>>, synth: Tone.PolySynth | null}) {
+    if (keyData == null || scale == null) return (<></>);
 
     const [keyN, setKeyN] = useState<number | string>(keyData.n ?? '');
     const [keyColor, setKeyColor] = useState<string>(keyData.color ?? 'mallow');
@@ -105,20 +92,20 @@ function KeyEditor ({keyData, scale, setScale, synth}: {keyData: KeyData | null,
     const handleChangeN = (event: ChangeEvent<HTMLInputElement>) => {
         synth?.releaseAll();
         const n = event.target.valueAsNumber ?? '';
-        setScale(scale?.updateKeyPitch(keyData.code, n) ?? null);
+        scale.setKeyPitch(keyData.char, n);
         setKeyN(n);
     }
 
     const handleChangeColor = (event: ChangeEvent<HTMLSelectElement>) => {
         const color = event.target.value;
-        setScale(scale?.updateKeyColor(keyData.code, color) || null);
+        scale.setKeyColor(keyData.char, color);
         setKeyColor(color);
     }
 
     return (
         <form>
             <h3>
-                {getKeyFromCode(keyData.code)?.toUpperCase()}
+                {keyData.char?.toUpperCase()}
             </h3>
             <code>
                 {JSON.stringify(keyData)}
@@ -243,42 +230,65 @@ export default function Phone() {
                 <h1 className="hidden">
                     Microtonal Synthesizer
                 </h1>
-                <div className="flex flex-row">
-                    <section className="m-2 p-3 bg-white/90 border-4 border-mallow/60 rounded-xl rounded-br-none flex-grow">
-                        <h2 className="hidden">
-                            Keyboard
+                <section className="m-2 p-3 bg-white/90 border-4 border-mallow/60 rounded-xl flex-grow">
+                    <header className="font-ysabeauInfant font-semibold text-lg text-mallow flex flex-row items-baseline">
+                        <h2 className="font-bold text-2xl text-mallow me-3">
+                            Diatonic
                         </h2>
-                        <input type="number" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
-                        <input type="number" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
+                        <input name="l" type="number" className="text-right bg-transparent" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
+                        <label htmlFor="l" className="font-normal">
+                            L
+                        </label>
+
+                        <input name="s" type="number" className="text-right ms-2 bg-transparent" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
+                        <label htmlFor="s" className="font-normal">
+                            s
+                        </label>
+
+                        <label htmlFor="ratio" className="ms-8 font-normal">
+                            Ratio
+                        </label>
                         <select
+                            name="ratio"
                             className="bg-transparent"
                             value={scale.ratio.toString()}
                             onChange={handleRatioChange}
                         >
                             {ratios.map((r) => (<option key={r.toString()} value={r.toString()}>{r.toString().replace(',', ':')}</option>))}
                         </select>
-                        <input type="number" value={scale.mode}onChange={handleModeChange}></input>
-                        <br />
-                        <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
+
+                        <label htmlFor="mode" className="ms-8 me-2 font-normal">
+                            Mode
+                        </label>
+                        <input name="mode" type="number" className="bg-transparent" value={scale.mode} min={-2} max={99} onChange={handleModeChange}></input>
+                        <span className="ms-8 font-normal">
+                            EDO: {scale.edo}
+                        </span>
+                    </header>
+                    <br />
+                    <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
+                </section>
+                <div className="flex flex-row flex-wrap">
+                    <section className={`m-2 p-3 bg-white/90 border-4 border-stereum/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
+                        <h2 className="font-bold text-2xl text-stereum">
+                            Scale Information
+                        </h2>
+                        <p>
+                            The diatonic scale is…
+                        </p>
                     </section>
-                    <section className={`m-2 p-3 bg-white/90 border-4 border-clover/60 rounded-xl rounded-bl-none flex-grow ${scale == null ? 'hidden' : ''}`}>
+                    <section className={`m-2 p-3 bg-white/90 border-4 border-clover/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>
                         <h2 className="font-bold text-2xl text-clover">
                             Editor
                         </h2>
                         <KeyEditor keyData={keyEdited} scale={scale} setScale={setScale} synth={synth} />
                     </section>
+                    <section className={`m-2 p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>
+                        <h2 className="font-bold text-2xl text-robin">
+                            Harmony
+                        </h2>
+                    </section>
                 </div>
-                <section className={`m-2 p-3 bg-white/90 border-4 border-stereum/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
-                    <h2 className="font-bold text-2xl text-stereum">
-                        Scale Information
-                    </h2>
-                    <p>
-                        Scale Info
-                    </p>
-                    <code>
-                        {JSON.stringify(scale)}
-                    </code>
-                </section>
             </article>
         </main>
     );

@@ -17,6 +17,12 @@ function adjustByEdoStep(freq: number, edo: number, step: number) {
     return freq * (2 ** (step / edo));
 }
 
+export interface KeyData {
+    char: string,
+    n: number | undefined;
+    color: string | undefined;
+}
+
 export default class Scale {
     /**
      * Defines a scale.
@@ -30,6 +36,7 @@ export default class Scale {
     #scale: string[];
     #keys: Map<string, number>;
     #mode: number;
+    #colors: Map<string, string>;
 
     constructor(
         public name: string,
@@ -41,6 +48,7 @@ export default class Scale {
         const numLS = numL + numS;
         this.#edo = numL * ratio[0] + numS * ratio[1];
         this.#mode = (((mode ?? 0) % numLS) + numLS) % numLS;
+        this.#colors = new Map();
 
         // Generate scale pattern.
         this.#scale = []
@@ -74,20 +82,27 @@ export default class Scale {
                 const stepSize = step === 'L' ? ratioL : ratioS
                 
                 this.#keys.set(midRow[idx], ++edoN);
+                this.#colors.set(midRow[idx], edoN % this.#edo ? 'mallow' : 'stereum');
                 switch (stepSize) {
                     case 4:
-                        this.#keys.set(numRow[idx], ++edoN)
+                        this.#keys.set(numRow[idx], ++edoN);
+                        this.#colors.set(numRow[idx], 'robin');
                     case 3:
                         ++edoN;
                         if (idx < btmRow.length)
                             this.#keys.set(btmRow[idx], edoN);
+                            this.#colors.set(btmRow[idx], 'robin');
                     case 2:
                         if (step === 's' && ratio.toString() === '3,2') {
                             ++edoN;
-                            if (idx < btmRow.length)
+                            if (idx < btmRow.length) {
                                 this.#keys.set(btmRow[idx], edoN);
-                        } else
-                            this.keys.set(topRow[idx], ++edoN);
+                                this.#colors.set(btmRow[idx], 'robin')
+                            }
+                        } else {
+                            this.#keys.set(topRow[idx], ++edoN);
+                            this.#colors.set(topRow[idx], 'clover');
+                        }
                 }
             }
     }
@@ -104,6 +119,22 @@ export default class Scale {
     }
     set mode(n) {
         this.#mode = n % this.#edo;
+    }
+
+    setKeyPitch(key: string, n: number) {
+        this.#keys.set(key, n);
+    }
+
+    setKeyColor(key: string, color: string) {
+        this.#colors.set(key, color);
+    }
+
+    getKey(key: string): KeyData {
+        return {
+            char: key,
+            n: this.#keys.get(key),
+            color: this.#colors.get(key)
+        }
     }
 
     play(synth: Tone.PolySynth | null, code: string, type: string) {

@@ -15,10 +15,10 @@
   a {
     @apply text-mallow;
   }
-  body header {
+  .site-header {
     @apply bg-robin/75 text-3xl font-montserrat font-medium py-3 border-2 border-robin/30;
   }
-  body header a {
+  .site-header a {
     @apply text-white;
   }
 

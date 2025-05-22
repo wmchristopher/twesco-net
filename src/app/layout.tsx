@@ -22,8 +22,8 @@ export default function RootLayout({
       </head>
       <Analytics />
       <body className="flex flex-col h-screen">
-        <header className={`text-center`}>
-          <Link className="logo" href='/'>
+        <header className="text-center site-header">
+          <Link className="logo" href="/">
             TWESCO
           </Link>
         </header>
