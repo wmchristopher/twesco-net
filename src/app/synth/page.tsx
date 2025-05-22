@@ -2,7 +2,7 @@
 
 import * as Tone from 'tone';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import Scale, { KeyData } from '@/app/lib/models/scale';
+import Scale, { KeyData, ScaleInfo } from '@/app/lib/models/scale';
 import { getCodeFromKey, getKeyFromCode } from '@/app/lib/models/key';
 
 
@@ -128,6 +128,7 @@ export default function Phone() {
 
     // Scale object as defined by L and s fields.
     const [scale, setScale] = useState<Scale>(new Scale('Diatonic', 5, 2, [2, 1], 6));
+    const [scaleInfo, setScaleInfo] = useState<ScaleInfo|null>(null);
 
     // Set of active (depressed) keys.
     const [keysActive, setKeysActive] = useState<Set<string>>(new Set([]))
@@ -204,15 +205,6 @@ export default function Phone() {
         setScale(prev => new Scale(prev.name, prev.numL, prev.numS, prev.ratio, newMode));
     }
 
-    // useEffect(() => {
-    //     // Fetch preset scales from API.
-    //     fetch('/edo/')
-    //     .then((r: Response) => r.json())
-    //     .then((rJson) => {
-    //         setEdos(rJson.map((e: any) => e.edo))
-    //     });
-    // }, []);
-
     useEffect(() => {
         // Add window-scope event listeners for key events.
         window.addEventListener('keydown', handleKeyDown);
@@ -223,6 +215,16 @@ export default function Phone() {
         }
     }, [scale, synth, handleKeyDown, handleKeyUp])
 
+    useEffect(() => {
+        if (!scale) return;
+        fetch(`/scale/${scale.numL}/${scale.numS}`)
+            .then(res => {
+                if (!res.ok) return null;
+                return res.json();
+            })
+            .then(setScaleInfo)
+    }, [scale])
+
     return (
         <main style={{backgroundImage: 'url("/static/image.png")', backgroundRepeat: "repeat", backgroundSize: "417px 192px"}}
               className="flex-grow p-8">
@@ -231,37 +233,40 @@ export default function Phone() {
                     Microtonal Synthesizer
                 </h1>
                 <section className="m-2 p-3 bg-white/90 border-4 border-mallow/60 rounded-xl flex-grow">
-                    <header className="font-ysabeauInfant font-semibold text-lg text-mallow flex flex-row items-baseline">
+                    <header className="font-ysabeauInfant text-lg text-mallow flex flex-row items-baseline">
                         <h2 className="font-bold text-2xl text-mallow me-3">
-                            Diatonic
+                            {scaleInfo?.name ?? 'Scale'}
                         </h2>
-                        <input name="l" type="number" className="text-right bg-transparent" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
-                        <label htmlFor="l" className="font-normal">
+                        <span>
+                            Explain &#x261e;
+                        </span>
+                        <input name="l" type="number" className="text-right bg-transparent font-semibold" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
+                        <label htmlFor="l">
                             L
                         </label>
 
-                        <input name="s" type="number" className="text-right ms-2 bg-transparent" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
-                        <label htmlFor="s" className="font-normal">
+                        <input name="s" type="number" className="text-right ms-2 bg-transparent font-semibold" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
+                        <label htmlFor="s">
                             s
                         </label>
 
-                        <label htmlFor="ratio" className="ms-8 font-normal">
+                        <label htmlFor="ratio" className="ms-8">
                             Ratio
                         </label>
                         <select
                             name="ratio"
-                            className="bg-transparent"
+                            className="bg-transparent font-semibold"
                             value={scale.ratio.toString()}
                             onChange={handleRatioChange}
                         >
                             {ratios.map((r) => (<option key={r.toString()} value={r.toString()}>{r.toString().replace(',', ':')}</option>))}
                         </select>
 
-                        <label htmlFor="mode" className="ms-8 me-2 font-normal">
+                        <label htmlFor="mode" className="ms-8 me-2">
                             Mode
                         </label>
-                        <input name="mode" type="number" className="bg-transparent" value={scale.mode} min={-2} max={99} onChange={handleModeChange}></input>
-                        <span className="ms-8 font-normal">
+                        <input name="mode" type="number" className="bg-transparent font-semibold" value={scale.mode} min={-2} max={99} onChange={handleModeChange}></input>
+                        <span className="ms-8 ">
                             EDO: {scale.edo}
                         </span>
                     </header>
@@ -274,7 +279,7 @@ export default function Phone() {
                             Scale Information
                         </h2>
                         <p>
-                            The diatonic scale is…
+                            {scaleInfo?.info ?? 'No info for this scale.'}
                         </p>
                     </section>
                     <section className={`m-2 p-3 bg-white/90 border-4 border-clover/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>

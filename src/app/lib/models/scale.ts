@@ -23,6 +23,11 @@ export interface KeyData {
     color: string | undefined;
 }
 
+export interface ScaleInfo {
+    name: string,
+    info: string
+}
+
 export default class Scale {
     /**
      * Defines a scale.

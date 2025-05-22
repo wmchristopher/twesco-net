@@ -37,7 +37,7 @@
   .key-robin {
     @apply text-white bg-robin;
   }
-
+  
   .key-none {
     @apply opacity-50;
   }

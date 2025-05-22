@@ -3,14 +3,15 @@ import { notFound } from "next/navigation";
 
 export async function GET(
     request: Request, 
-    { params }: { params: Promise<{name: string}> }
+    { params }: { params: Promise<{l: string, s: string}> }
 ) {
     /**
      * Fetches specific scale from server.
      */
-    const { name } = await params;
+
+    const { l, s } = await params;
     
-    const result = await sql`SELECT * FROM scale WHERE name = ${ name ?? '' }::text`
+    const result = await sql`SELECT * FROM scale WHERE l = ${ l ?? '' } AND s = ${ s ?? ''};`
 
     if (result[0] === undefined) {
         notFound();
