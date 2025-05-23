@@ -44,4 +44,8 @@
   .key-active {
     @apply opacity-80;
   }
+
+  .small-caps {
+    font-variant: small-caps;
+  }
 }

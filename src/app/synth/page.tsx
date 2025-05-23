@@ -1,7 +1,7 @@
 "use client"
 
 import * as Tone from 'tone';
-import { ChangeEvent, Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import Scale, { KeyData, ScaleInfo } from '@/app/lib/models/scale';
 import { getCodeFromKey, getKeyFromCode } from '@/app/lib/models/key';
 
@@ -136,6 +136,11 @@ export default function Phone() {
     // Key that is being edited.
     const [keyEdited, setKeyEdited] = useState<KeyData | null>(null)
 
+    const helpRef = useRef<HTMLDialogElement>(null);
+
+    const openHelp = () => helpRef.current?.showModal();
+    const closeHelp = () => helpRef.current?.close();
+
     const initializeTone = async () => {
         // Sets up the synthesizer with default settings.
         // Must be triggered by user action.
@@ -233,13 +238,13 @@ export default function Phone() {
                     Microtonal Synthesizer
                 </h1>
                 <section className="m-2 p-3 bg-white/90 border-4 border-mallow/60 rounded-xl flex-grow">
-                    <header className="font-ysabeauInfant text-lg text-mallow flex flex-row items-baseline">
-                        <h2 className="font-bold text-2xl text-mallow me-3">
+                    <header className="font-ysabeauInfant text-xl text-mallow flex flex-row items-baseline">
+                        <h2 className="font-bold text-2xl text-mallow me-auto">
                             {scaleInfo?.name ?? 'Scale'}
                         </h2>
-                        <span>
+                        <a href="#" className="font-bold" onClick={openHelp}>
                             Explain &#x261e;
-                        </span>
+                        </a>
                         <input name="l" type="number" className="text-right bg-transparent font-semibold" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
                         <label htmlFor="l">
                             L
@@ -294,6 +299,67 @@ export default function Phone() {
                         </h2>
                     </section>
                 </div>
+                <dialog ref={helpRef} className="p-8 rounded max-w-2xl">
+                    <section className="mb-4">
+                        <p>
+                            This musical keyboard is built for <b>moment&nbsp;of&nbsp;symmetry</b> scales (<span className='small-caps font-semibold'>mos</span>),
+                            which are formed by two step sizes: one large (L) and one small (s).
+                        </p>
+                        <p>
+                            For example, the default diatonic scale is <i className="font-ysabeauInfant">5L&nbsp;2s</i>—five large and two small steps.
+                        </p>
+                    </section>
+                    <section className="mb-4">
+                        <p>
+                            <b>L</b> and <b>s</b> set how many steps of each size are in the scale.
+                        </p>
+                        <p>
+                            <b>Ratio</b> sets the ratio between the step sizes.
+                        </p>
+                        <p>
+                            <b>Mode</b> shifts the starting note of the scale.
+                        </p>
+                        <p>
+                            <b>EDO</b> (<i>equal divisions of the octave</i>) derives from the step counts and ratio.
+                        </p>
+                        <p>With the default <i className="font-ysabeauInfant">2:1 5L&nbsp;2s</i>:
+                        <br></br>
+                        <span className="font-ysabeauInfant text-nowrap">(5 &times; 2) + (2 &times; 1) = 12</span>
+                        <br></br>
+                        &hellip;so the octave must divide into 12.
+                        </p>
+                    </section>
+                    <section className="mb-4">
+                        <p>
+                            Each active key of the keyboard displays three values. 
+                        </p>
+                        <p>
+                            The number in bold is <b> <span className="small-caps font-extrabold">edo</span>-steps</b> above the root note
+                            (<i>e.g.</i>, in 12-<span className="small-caps font-semibold">edo</span>, how many 12ths of an octave, or semitones).
+                        </p>
+                        <p>
+                            The glyph on the right indicates the key on a <span className="small-caps font-semibold">qwerty</span> keyboard to which this note is mapped.
+                        </p>
+                        <p>
+                            The decimal value on the bottom gives the cents above the root note.  One cent is one 1,200th of an octave.
+                        </p>
+                    </section>
+                    <section>
+                        <p>
+                            The selected <span className="small-caps font-semibold">mos</span> is set along the row of keys starting
+                            with <span className="small-caps font-semibold">edo</span>-step&nbsp;<i className="font-ysabeauInfant">0</i>, key&nbsp;<i>A</i>.
+                        </p>
+                        <p>
+                            The root note and octaves are marked in red; other scale degrees are purple.
+                        </p>
+                        <p>
+                            Chromatic notes are green and azure.
+                        </p>
+                        <p>
+                            Vertically aligned keys are set so that the higher key on the keyboard plays the higher pitch.
+                        </p>
+                    </section>
+                </dialog>
             </article>
         </main>
     );
