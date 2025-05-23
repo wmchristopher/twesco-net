@@ -28,13 +28,13 @@ function KeyButton(
         <button key={data.char} className={`key key-${data.color ?? 'none'} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}} onClick={() => setKeyEdited(data)}>
             <div className='flex flex-row justify-between'>
                 <span className={`font-ysabeauInfant ${n != null && 'font-bold'}`}>
-                    {n ?? '–'}
+                    {n ?? ''}
                 </span>
                 <span className='font-extralight'>
                     {data.char.toUpperCase()}
                 </span>
             </div>
-            <div className='text-xs mt-3 font-light font-ysabeauInfant'>{cents?.toFixed(2)?.concat('¢') ?? '–'}</div>
+            <div className='text-xs mt-2 font-light font-ysabeauInfant'>{cents?.toFixed(1)?.concat('¢') ?? '–'}</div>
         </button>
     )
 }
@@ -66,7 +66,7 @@ function Qwerty(
 
     return (
         // KEYBOARD
-        <div className="font-ysabeauInfant" style={{display: 'grid', gridTemplateColumns: 'repeat(25, max-content)'}}>
+        <div className="font-ysabeauInfant" style={{display: 'grid', gridTemplateColumns: 'repeat(25, 1fr)'}}>
             {[numRow, topRow, midRow, btmRow].map((row, idx) => 
                 // ROW
                 // Standard keyboards happen to be set up so that `idx` can be both `key` and a horizontal grid offset.
@@ -233,84 +233,86 @@ export default function Phone() {
 
     return (
         <main style={{backgroundImage: 'url("/static/image.png")', backgroundRepeat: "repeat", backgroundSize: "417px 192px"}}
-              className="flex-grow p-8">
+              className="flex-grow p-4">
             <article>
                 <h1 className="hidden">
                     Microtonal Synthesizer
                 </h1>
-                <section className="m-2 p-3 bg-white/90 border-4 border-mallow/60 rounded-xl flex-grow">
-                    <header className="font-ysabeauInfant text-xl text-mallow flex flex-row items-baseline">
-                        <h2 className="font-bold text-2xl text-mallow me-auto">
-                            {scaleInfo?.name ?? 'Scale'}
-                        </h2>
-                        <a href="#" className="font-bold italic mr-6" onClick={openHelp}>
-                            Explain &#x261e;
-                        </a>
-                        <input name="l" type="number" className="text-right bg-transparent font-semibold" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
-                        <label htmlFor="l">
-                            L
-                        </label>
+                <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(30ch,50ch)] gap-3">
+                    <div className="flex-grow basis-[fit-content]">
+                        <section className="p-3 bg-white/90 border-4 border-mallow/60 rounded-xl flex-grow">
+                            <header className="font-ysabeauInfant text-xl text-mallow flex flex-row items-baseline">
+                                <h2 className="font-bold text-2xl text-mallow me-auto">
+                                    {scaleInfo?.name ?? 'Scale'}
+                                </h2>
+                                <a href="#" className="font-semibold italic mr-6" onClick={openHelp}>
+                                    Explain &#x261e;
+                                </a>
+                                <input name="l" type="number" className="text-right bg-transparent font-bold" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
+                                <label htmlFor="l">
+                                    L
+                                </label>
 
-                        <input name="s" type="number" className="text-right ms-2 bg-transparent font-semibold" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
-                        <label htmlFor="s">
-                            s
-                        </label>
+                                <input name="s" type="number" className="text-right ms-2 bg-transparent font-bold" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
+                                <label htmlFor="s">
+                                    s
+                                </label>
 
-                        <label htmlFor="ratio" className="ms-8">
-                            Ratio
-                        </label>
-                        <select
-                            name="ratio"
-                            className="bg-transparent font-semibold"
-                            value={scale.ratio.toString()}
-                            onChange={handleRatioChange}
-                        >
-                            {ratios.map((r) => (<option key={r.toString()} value={r.toString()}>{r.toString().replace(',', ':')}</option>))}
-                        </select>
+                                <label htmlFor="ratio" className="ms-10 me-2">
+                                    Ratio
+                                </label>
+                                <select
+                                    name="ratio"
+                                    className="bg-transparent font-bold"
+                                    value={scale.ratio.toString()}
+                                    onChange={handleRatioChange}
+                                >
+                                    {ratios.map((r) => (<option key={r.toString()} value={r.toString()}>{r.toString().replace(',', ':')}</option>))}
+                                </select>
 
-                        <label htmlFor="mode" className="ms-8 me-2">
-                            Mode
-                        </label>
-                        <input name="mode" type="number" className="bg-transparent font-semibold" value={scale.mode} min={-2} max={99} onChange={handleModeChange}></input>
-                        <span className="ms-8 ">
-                            EDO: {scale.edo}
-                        </span>
-                    </header>
-                    <br />
-                    <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
-                </section>
-                <div className="flex flex-row flex-wrap">
-                    <section className={`m-2 p-3 bg-white/90 border-4 border-stereum/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
+                                <label htmlFor="mode" className="ms-8 me-2">
+                                    Mode
+                                </label>
+                                <input name="mode" type="number" className="bg-transparent font-bold" value={scale.mode} min={-2} max={99} onChange={handleModeChange}></input>
+                                <span className="ms-8 me-2">
+                                    EDO: {scale.edo}
+                                </span>
+                            </header>
+                            <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
+                        </section>
+                        <div className="flex">
+                            <section className={`p-3 mr-3 bg-white/90 border-4 border-clover/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>
+                                <h2 className="font-bold text-2xl text-clover">
+                                    Editor
+                                </h2>
+                                <KeyEditor keyData={keyEdited} scale={scale} synth={synth} />
+                            </section>
+                            <section className={`p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>
+                                <h2 className="font-bold text-2xl text-robin">
+                                    Harmony
+                                </h2>
+                            </section>
+                        </div>
+                    </div>
+                    <section className={`p-3 bg-white/90 border-4 border-stereum/60 rounded-xl flex-grow basis-[50ch] max-h-[90vh] overflow-auto scale-info text-justify ${scale == null ? 'hidden' : ''}`}>
                         <h2 className="font-bold text-2xl text-stereum">
                             Scale Information
                         </h2>
-                        <p>
-                            {scaleInfo?.info ?? 'No info for this scale.'}
-                        </p>
-                    </section>
-                    <section className={`m-2 p-3 bg-white/90 border-4 border-clover/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>
-                        <h2 className="font-bold text-2xl text-clover">
-                            Editor
-                        </h2>
-                        <KeyEditor keyData={keyEdited} scale={scale} synth={synth} />
-                    </section>
-                    <section className={`m-2 p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>
-                        <h2 className="font-bold text-2xl text-robin">
-                            Harmony
-                        </h2>
+                        <div style={{columns:"65ch auto", columnGap:"3rem"}} dangerouslySetInnerHTML={{__html: scaleInfo?.info ?? 'No info for this scale.'}}>
+                        </div>
                     </section>
                 </div>
-                <dialog ref={helpRef} className="p-8 rounded max-w-2xl">
-                    <section className="mb-4">
+                <dialog ref={helpRef} className="p-8 rounded max-w-prose">
+                    <section>
                         <p>
                             This musical keyboard is built for <b>moment&nbsp;of&nbsp;symmetry</b> scales (<span className='small-caps font-semibold'>mos</span>),
                             which are formed by two step sizes: one large (L) and one small (s).
                         </p>
                         <p>
-                            For example, the default diatonic scale is <i className="font-ysabeauInfant">5L&nbsp;2s</i>—five large and two small steps.
+                            For example, the diatonic scale is <i className="font-ysabeauInfant">5L&nbsp;2s</i>—five large and two small steps.
                         </p>
                     </section>
-                    <section className="mb-4">
+                    <section>
                         <p>
                             <b>L</b> and <b>s</b> set how many steps of each size are in the scale.
                         </p>
@@ -330,7 +332,7 @@ export default function Phone() {
                         &hellip;so the octave must divide into 12.
                         </p>
                     </section>
-                    <section className="mb-4">
+                    <section>
                         <p>
                             Each active key of the keyboard displays three values. 
                         </p>

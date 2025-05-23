@@ -18,6 +18,7 @@ module.exports = {
         ysabeau: ["Ysabeau", "sans-serif"],
         ysabeauInfant: ["Ysabeau Infant", "sans-serif"],
         cormorant: ["Cormorant", "serif"],
+        cormorantInfant: ["Cormorant Infant", "serif"],
         montserrat: ["Montserrat Alternates", "sans-serif"]
       }
     },

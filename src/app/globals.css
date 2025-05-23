@@ -11,6 +11,7 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-cormorant;
+    @apply font-bold;
   }
   a {
     @apply text-mallow;
@@ -23,7 +24,7 @@
   }
 
   .key {
-    @apply m-2 p-3 rounded opacity-100;
+    @apply m-2 px-3 py-2 rounded opacity-100;
   }
   .key-mallow {
     @apply text-white bg-mallow;
@@ -47,5 +48,20 @@
 
   .small-caps {
     font-variant: small-caps;
+  }
+
+  section {
+    @apply mb-5 hyphens-auto;
+  }
+  p, table {
+    @apply mb-3;
+  }
+
+  .scale-info h3 {
+    @apply font-cormorantInfant;
+  }
+
+  td {
+    @apply p-1 text-left border border-black;
   }
 }
