@@ -3,7 +3,7 @@
 import * as Tone from 'tone';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import Scale, { KeyData, ScaleInfo } from '@/app/lib/models/scale';
-import { getCodeFromKey, getKeyFromCode } from '@/app/lib/models/key';
+import { getCodeFromKey } from '@/app/lib/models/key';
 
 
 function KeyButton(
@@ -71,7 +71,7 @@ function Qwerty(
                 // ROW
                 // Standard keyboards happen to be set up so that `idx` can be both `key` and a horizontal grid offset.
                 <div key={idx} style={{display: "grid", gridTemplateColumns: "subgrid", gridColumn: `${idx + 1} / -1`}}>
-                    {row.map((key, jdx) =>
+                    {row.map(key =>
                         // KEY
                         <KeyButton key={key} data={scale.getKey(key)} keyActive={keysActive.has(getCodeFromKey(key) ?? '')}
                                    setKeyEdited={setKeyEdited} edo={scale.edo} />
@@ -83,11 +83,11 @@ function Qwerty(
 }
 
 
-function KeyEditor ({keyData, scale, setScale, synth}: {keyData: KeyData | null, scale: Scale | null, setScale: Dispatch<SetStateAction<Scale>>, synth: Tone.PolySynth | null}) {
-    if (keyData == null || scale == null) return (<></>);
+function KeyEditor ({keyData, scale, synth}: {keyData: KeyData | null, scale: Scale | null, synth: Tone.PolySynth | null}) {
+    const [keyN, setKeyN] = useState<number | string>(keyData?.n ?? '');
+    const [keyColor, setKeyColor] = useState<string>(keyData?.color ?? 'mallow');
 
-    const [keyN, setKeyN] = useState<number | string>(keyData.n ?? '');
-    const [keyColor, setKeyColor] = useState<string>(keyData.color ?? 'mallow');
+    if (keyData == null || scale == null) return (<></>);
 
     const handleChangeN = (event: ChangeEvent<HTMLInputElement>) => {
         synth?.releaseAll();
@@ -139,7 +139,7 @@ export default function Phone() {
     const helpRef = useRef<HTMLDialogElement>(null);
 
     const openHelp = () => helpRef.current?.showModal();
-    const closeHelp = () => helpRef.current?.close();
+    // const closeHelp = () => helpRef.current?.close();
 
     const initializeTone = async () => {
         // Sets up the synthesizer with default settings.
@@ -155,24 +155,6 @@ export default function Phone() {
             }
         ).toDestination();
         setSynth(newSynth);
-    }
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-        // User presses key down.  User may hold key to hold note.
-        if (synth == null) initializeTone();
-
-        if (e.repeat || scale == null) return;  // Do nothing if this is a "repeat" keydown, i.e. a held note.
-
-        setKeysActive(ka => new Set(ka).add(e.code))  // Highlight key.
-
-        scale.play(synth, e.code, 'attack');         // Play note.
-    }
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-        if (scale == null) return;
-
-        setKeysActive(ka => (ka.delete(e.code), new Set(ka))); // Un-highlight key.
-        scale.play(synth, e.code, 'release');                 // Release note.
     }
 
     const handleScaleChange = (type: string) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -212,13 +194,32 @@ export default function Phone() {
 
     useEffect(() => {
         // Add window-scope event listeners for key events.
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // User presses key down.  User may hold key to hold note.
+            if (synth == null) initializeTone();
+    
+            if (e.repeat || scale == null) return;  // Do nothing if this is a "repeat" keydown, i.e. a held note.
+    
+            setKeysActive(ka => new Set(ka).add(e.code))  // Highlight key.
+    
+            scale.play(synth, e.code, 'attack');         // Play note.
+        }
+    
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (scale == null) return;
+    
+            setKeysActive(ka => (ka.delete(e.code), new Set(ka))); // Un-highlight key.
+            scale.play(synth, e.code, 'release');                 // Release note.
+        }
+
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
         }
-    }, [scale, synth, handleKeyDown, handleKeyUp])
+    }, [scale, synth])
 
     useEffect(() => {
         if (!scale) return;
@@ -242,7 +243,7 @@ export default function Phone() {
                         <h2 className="font-bold text-2xl text-mallow me-auto">
                             {scaleInfo?.name ?? 'Scale'}
                         </h2>
-                        <a href="#" className="font-bold" onClick={openHelp}>
+                        <a href="#" className="font-bold italic mr-6" onClick={openHelp}>
                             Explain &#x261e;
                         </a>
                         <input name="l" type="number" className="text-right bg-transparent font-semibold" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
@@ -291,7 +292,7 @@ export default function Phone() {
                         <h2 className="font-bold text-2xl text-clover">
                             Editor
                         </h2>
-                        <KeyEditor keyData={keyEdited} scale={scale} setScale={setScale} synth={synth} />
+                        <KeyEditor keyData={keyEdited} scale={scale} synth={synth} />
                     </section>
                     <section className={`m-2 p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>
                         <h2 className="font-bold text-2xl text-robin">

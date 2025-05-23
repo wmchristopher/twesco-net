@@ -82,7 +82,7 @@ export default class Scale {
         const [ratioL, ratioS] = ratio
 
         while (idx < midRow.length)
-            for (let step of this.#scale) {
+            for (const step of this.#scale) {
                 if (++idx >= midRow.length) break;
                 const stepSize = step === 'L' ? ratioL : ratioS
                 
