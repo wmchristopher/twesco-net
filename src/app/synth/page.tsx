@@ -294,7 +294,7 @@ export default function Phone() {
                             </section>
                         </div>
                     </div>
-                    <section className={`p-3 bg-white/90 border-4 border-stereum/60 rounded-xl flex-grow basis-[50ch] max-h-[90vh] overflow-auto scale-info text-justify ${scale == null ? 'hidden' : ''}`}>
+                    <section className={`p-3 bg-white/90 border-4 border-stereum/60 rounded-xl flex-grow basis-[50ch] max-h-[90vh] text-black/80 overflow-auto scale-info text-justify ${scale == null ? 'hidden' : ''}`}>
                         <h2 className="font-bold text-2xl text-stereum">
                             Scale Information
                         </h2>
@@ -353,7 +353,7 @@ export default function Phone() {
                             with <span className="small-caps font-semibold">edo</span>-step&nbsp;<i className="font-ysabeauInfant">0</i>, key&nbsp;<i>A</i>.
                         </p>
                         <p>
-                            The root note and octaves are marked in red; other scale degrees are purple.
+                            The root note and octaves are marked in orange; other scale degrees are purple.
                         </p>
                         <p>
                             Chromatic notes are green and azure.
