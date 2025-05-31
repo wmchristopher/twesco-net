@@ -120,6 +120,37 @@ function KeyEditor ({keyData, scale, synth}: {keyData: KeyData | null, scale: Sc
     )
 }
 
+function getHarmony(
+    freqs: number[],
+    maxDenom: number = 20,
+    maxError: number = 20
+) {
+    if (freqs.length < 2) return []
+    freqs = freqs.sort()
+    const base = freqs[0]
+    const targetRatios = freqs.slice(1).map(f => f / base)
+    let result = [];
+
+    for (let denom = 1; denom <= maxDenom; denom++) {
+        let pushRatio = true;
+        const integers = new Map();
+        integers.set(denom, 0);
+        for (let r of targetRatios) {
+            const num = Math.round(denom * r);
+            const ratio = num / denom;
+            const approxCents = 1200 * Math.log2(ratio)
+            const error = approxCents - 1200 * Math.log2(r)
+            if (Math.abs(error) > maxError) {
+                pushRatio = false;
+                break;
+            }
+            integers.set(num, error);
+        }
+        if (pushRatio) result.push([...integers]);
+    }
+    return result;
+}
+
 
 export default function Phone() {
 
@@ -132,6 +163,9 @@ export default function Phone() {
 
     // Set of active (depressed) keys.
     const [keysActive, setKeysActive] = useState<Set<string>>(new Set([]))
+
+    // Set of active frequencies.
+    const [freqsActive, setFreqsActive] = useState<Set<number>>(new Set([]))
 
     // Key that is being edited.
     const [keyEdited, setKeyEdited] = useState<KeyData | null>(null)
@@ -202,6 +236,8 @@ export default function Phone() {
             if (e.repeat || scale == null) return;  // Do nothing if this is a "repeat" keydown, i.e. a held note.
     
             setKeysActive(ka => new Set(ka).add(e.code))  // Highlight key.
+            const freq = scale.getPitch(e.code)
+            if (freq != null) setFreqsActive(fa => new Set(fa).add(freq))
     
             scale.play(synth, e.code, 'attack');         // Play note.
         }
@@ -210,6 +246,8 @@ export default function Phone() {
             if (scale == null) return;
     
             setKeysActive(ka => (ka.delete(e.code), new Set(ka))); // Un-highlight key.
+            const freq = scale.getPitch(e.code)
+            if (freq != null) setFreqsActive(fa => (fa.delete(freq), new Set(fa)))
             scale.play(synth, e.code, 'release');                 // Release note.
         }
 
@@ -245,7 +283,7 @@ export default function Phone() {
                                 <h2 className="font-bold text-2xl text-mallow me-auto">
                                     {scaleInfo?.name ?? 'Scale'}
                                 </h2>
-                                <a href="#" className="font-semibold italic mr-6" onClick={openHelp}>
+                                <a href="#" className="font-semibold italic mr-6 hover:text-opacity-65" onClick={openHelp}>
                                     Explain &#x261e;
                                 </a>
                                 <input name="l" type="number" className="text-right bg-transparent font-bold" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
@@ -291,6 +329,22 @@ export default function Phone() {
                                 <h2 className="font-bold text-2xl text-robin">
                                     Harmony
                                 </h2>
+                                {getHarmony([...freqsActive]).map((r, idx) => (
+                                    <div key={idx}>
+                                        {r.map((i, jdx) => (
+                                            <div key={jdx}>
+                                                <meter min="0" max="20" high={10} value={i[1]} style={{transform:"scaleX(-1)"}}>
+                                                </meter>
+                                                <label>
+                                                    {i[0]}
+                                                </label>
+                                                <meter min="0" max="20" high={10} value={-i[1]}>
+                                                </meter>
+                                            </div>
+                                        ))}
+                                        <hr></hr>
+                                    </div>
+                                    ))}
                             </section>
                         </div>
                     </div>

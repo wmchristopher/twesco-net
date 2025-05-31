@@ -142,6 +142,13 @@ export default class Scale {
         }
     }
 
+    getPitch(code: string) {
+        const key = getKeyFromCode(code)
+        const edoN = this.#keys.get(key ?? '')
+        if (edoN != null) return adjustByEdoStep(pitchC, this.edo, edoN);
+        return null
+    }
+
     play(synth: Tone.PolySynth | null, code: string, type: string) {
         /**
          * Handles synth events.
@@ -154,14 +161,9 @@ export default class Scale {
         // validate input
         if (synth == null) return;
 
-        const key = getKeyFromCode(code)
+        const pitch = this.getPitch(code)
 
-        const edoN = this.#keys.get(key ?? '')
-
-        if (edoN != null) {
-            // get pitch to play
-            const pitch = adjustByEdoStep(pitchC, this.edo, edoN);
-
+        if (pitch != null) {
             switch (type) {
                 case 'attack':
                     synth.triggerAttack(pitch);
