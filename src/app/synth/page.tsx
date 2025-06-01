@@ -97,7 +97,7 @@ function KeyEditor ({keyData, scale, synth, setScale}: {keyData: KeyData | null,
     useEffect(() => setKeyN(keyData?.n?.toString() ?? ''), [keyData]);
     useEffect(() => setKeyColor(keyData?.color ?? 'disabled'), [keyData]);
 
-    if (keyData == null || scale == null) return (<></>);
+    if (keyData == null || scale == null) return (<p>Select a key to edit.</p>);
 
     const handleChangeN = (event: ChangeEvent<HTMLInputElement>) => {
         if (keyColor === 'disabled') return;
