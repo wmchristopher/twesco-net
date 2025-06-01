@@ -188,7 +188,7 @@ function getHarmony(
 function HarmonyMeter({error, integer}: {error: number, integer: number}) {
     return ( 
         <div className='grid grid-cols-subgrid col-span-full items-center'>
-            <span>{error < 0 ? `${error.toFixed(2)} ¢` : ''}</span>
+            <span className='text-end me-2'>{error < 0 ? `${error.toFixed(2)} ¢` : ''}</span>
             <meter title="cents flat" min="0" max="20" high={10} value={-error} style={{transform:"scaleX(-1)"}}>
             </meter>
             <label className='justify-self-center'>
@@ -196,7 +196,7 @@ function HarmonyMeter({error, integer}: {error: number, integer: number}) {
             </label>
             <meter title="cents sharp" min="0" max="20" high={10} value={error}>
             </meter>
-            <span>{error > 0 ? `+${error.toFixed(2)} ¢` : ''}</span>
+            <span className='ms-2'>{error > 0 ? `+${error.toFixed(2)} ¢` : ''}</span>
         </div>
     )
 }
@@ -336,12 +336,12 @@ export default function Phone() {
                                 <a href="#" className="font-semibold italic mr-6 hover:text-opacity-65" onClick={openHelp}>
                                     Explain &#x261e;
                                 </a>
-                                <input name="l" type="number" className="text-right bg-transparent font-bold" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
+                                <input name="l" type="number" className="text-end bg-transparent font-bold" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
                                 <label htmlFor="l">
                                     L
                                 </label>
 
-                                <input name="s" type="number" className="text-right ms-2 bg-transparent font-bold" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
+                                <input name="s" type="number" className="text-end ms-2 bg-transparent font-bold" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
                                 <label htmlFor="s">
                                     s
                                 </label>
@@ -368,26 +368,29 @@ export default function Phone() {
                             </header>
                             <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
                         </section>
-                        <div className="grid grid-cols-2 gap-3 h-[300px]">
+                        <div className="grid grid-cols-2 gap-3 h-[300px] max-h-[300px]">
                             <section className={`p-3 bg-white/90 border-4 border-clover/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
                                 <h2 className="font-bold text-2xl text-clover">
                                     Editor
                                 </h2>
                                 <KeyEditor keyData={keyEdited} scale={scale} synth={synth} setScale={setScale}/>
                             </section>
-                            <section className={`p-3 bg-white/90 border-4 border-robin/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
-                                <h2 className="font-bold text-2xl text-robin">
+                            <section className={`overflow-y-auto p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex flex-col ${scale == null ? 'hidden' : ''}`}>
+                                <h2 className="font-bold text-2xl text-robin shrink-0">
                                     Harmony
                                 </h2>
-                                <div className='font-ysabeauInfant grid grid-cols-[repeat(5,auto)] justify-start'>
+                                <div className="overflow-y-auto flex-1 font-ysabeauInfant grid grid-cols-[1fr_auto_auto_auto_1fr] content-start justify-center items-start">
                                     {[...getHarmony([...freqsActive])].map((r, idx) => (
-                                        <div key={idx} className='grid grid-cols-subgrid col-span-full'>
-                                            {JSON.parse(r[0]).map((i: number, jdx: number) => <HarmonyMeter key={jdx} error={r[1][jdx]} integer={i} />)}
-                                            <hr className='col-span-full border-clover'></hr>
+                                        <div key={idx} className="grid grid-cols-subgrid col-span-full">
+                                            {JSON.parse(r[0]).map((i: number, jdx: number) => (
+                                                <HarmonyMeter key={jdx} error={r[1][jdx]} integer={i} />
+                                            ))}
+                                            <hr className="col-span-full border-clover" />
                                         </div>
-                                        ))}
+                                    ))}
                                 </div>
                             </section>
+
                         </div>
                     </div>
                     <section className={`p-3 bg-white/90 border-4 border-stereum/60 rounded-xl flex-grow basis-[50ch] max-h-[90vh] text-black/80 overflow-auto scale-info text-justify ${scale == null ? 'hidden' : ''}`}>
@@ -399,7 +402,7 @@ export default function Phone() {
                     </section>
                 </div>
                 <dialog ref={helpRef} className="px-8 py-6 rounded max-w-prose">
-                    <button className='float-right font-semibold italic mb-3 text-mallow hover:text-opacity-65' onClick={closeHelp}>Close</button>
+                    <button className='float-end font-semibold italic mb-3 text-mallow hover:text-opacity-65' onClick={closeHelp}>Close</button>
                     <section className='clear-both'>
                         <p>
                             This musical keyboard is built for <b>moment&nbsp;of&nbsp;symmetry</b> scales (<span className='small-caps font-semibold'>mos</span>),
