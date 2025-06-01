@@ -173,7 +173,7 @@ function HarmonyMeter({error, integer}: {error: number, integer: number}) {
             </label>
             <meter title="cents sharp" min="0" max="20" high={10} value={error}>
             </meter>
-            <span>{error > 0 ? `${error.toFixed(2)} ¢` : ''}</span>
+            <span>{error > 0 ? `+${error.toFixed(2)} ¢` : ''}</span>
         </div>
     )
 }
@@ -200,7 +200,7 @@ export default function Phone() {
     const helpRef = useRef<HTMLDialogElement>(null);
 
     const openHelp = () => helpRef.current?.showModal();
-    // const closeHelp = () => helpRef.current?.close();
+    const closeHelp = () => helpRef.current?.close();
 
     const initializeTone = async () => {
         // Sets up the synthesizer with default settings.
@@ -375,8 +375,9 @@ export default function Phone() {
                         </div>
                     </section>
                 </div>
-                <dialog ref={helpRef} className="p-8 rounded max-w-prose">
-                    <section>
+                <dialog ref={helpRef} className="px-8 py-6 rounded max-w-prose">
+                    <button className='float-right font-semibold italic mb-3 text-mallow hover:text-opacity-65' onClick={closeHelp}>Close</button>
+                    <section className='clear-both'>
                         <p>
                             This musical keyboard is built for <b>moment&nbsp;of&nbsp;symmetry</b> scales (<span className='small-caps font-semibold'>mos</span>),
                             which are formed by two step sizes: one large (L) and one small (s).
