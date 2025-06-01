@@ -69,4 +69,19 @@
     font-size:75%;
     @apply mt-1 font-light;
   }
+
+  meter::-webkit-meter-bar {
+    background: none;
+    @apply bg-slate-200;
+  }
+
+  meter::-webkit-meter-optimum-value {
+    background: none;
+    @apply bg-robin bg-opacity-70;
+  }
+
+  meter::-webkit-meter-suboptimum-value {
+    background: none;
+    @apply bg-stereum bg-opacity-55;
+  }
 }

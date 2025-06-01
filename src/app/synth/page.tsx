@@ -5,6 +5,13 @@ import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } fr
 import Scale, { KeyData, ScaleInfo } from '@/app/lib/models/scale';
 import { getCodeFromKey } from '@/app/lib/models/key';
 
+function gcd(arr: number[]): number {
+    function helper(a: number, b: number) {
+        while (b !== 0) [a, b] = [b, a % b];
+        return Math.abs(a);
+    }
+    return arr.reduce(helper)
+}
 
 function KeyButton(
     {data, keyActive, setKeyEdited, edo}: { 
@@ -129,26 +136,46 @@ function getHarmony(
     freqs = freqs.sort()
     const base = freqs[0]
     const targetRatios = freqs.slice(1).map(f => f / base)
-    let result = [];
+    let result = new Map();
 
     for (let denom = 1; denom <= maxDenom; denom++) {
         let pushRatio = true;
-        const integers = new Map();
-        integers.set(denom, 0);
+        let integers = [denom];
+        let errors = [0]
         for (let r of targetRatios) {
             const num = Math.round(denom * r);
             const ratio = num / denom;
             const approxCents = 1200 * Math.log2(ratio)
-            const error = approxCents - 1200 * Math.log2(r)
+            const error = 1200 * Math.log2(r) - approxCents
             if (Math.abs(error) > maxError) {
                 pushRatio = false;
                 break;
             }
-            integers.set(num, error);
+            integers.push(num);
+            errors.push(error)
         }
-        if (pushRatio) result.push([...integers]);
+        const thisGcd = gcd(integers)
+        const integerJson = JSON.stringify(integers.map(n => n / thisGcd))
+        if (pushRatio && !result.has(integerJson)) result.set(integerJson, errors);
     }
     return result;
+}
+
+
+function HarmonyMeter({error, integer}: {error: number, integer: number}) {
+    return ( 
+        <div className='grid grid-cols-subgrid col-span-full items-center'>
+            <span>{error < 0 ? `${error.toFixed(2)} ¢` : ''}</span>
+            <meter title="cents flat" min="0" max="20" high={10} value={-error} style={{transform:"scaleX(-1)"}}>
+            </meter>
+            <label className='justify-self-center'>
+                {integer}
+            </label>
+            <meter title="cents sharp" min="0" max="20" high={10} value={error}>
+            </meter>
+            <span>{error > 0 ? `${error.toFixed(2)} ¢` : ''}</span>
+        </div>
+    )
 }
 
 
@@ -277,8 +304,8 @@ export default function Phone() {
                     Microtonal Synthesizer
                 </h1>
                 <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(30ch,50ch)] gap-3">
-                    <div className="flex-grow basis-[fit-content]">
-                        <section className="p-3 bg-white/90 border-4 border-mallow/60 rounded-xl flex-grow">
+                    <div className="flex-grow basis-[fit-content] flex flex-col">
+                        <section className="p-3 bg-white/90 border-4 border-mallow/60 rounded-xl">
                             <header className="font-ysabeauInfant text-xl text-mallow flex flex-row items-baseline">
                                 <h2 className="font-bold text-2xl text-mallow me-auto">
                                     {scaleInfo?.name ?? 'Scale'}
@@ -318,33 +345,25 @@ export default function Phone() {
                             </header>
                             <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
                         </section>
-                        <div className="flex">
-                            <section className={`p-3 mr-3 bg-white/90 border-4 border-clover/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>
+                        <div className="grid grid-cols-2 gap-3 flex-grow">
+                            <section className={`p-3 bg-white/90 border-4 border-clover/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
                                 <h2 className="font-bold text-2xl text-clover">
                                     Editor
                                 </h2>
                                 <KeyEditor keyData={keyEdited} scale={scale} synth={synth} />
                             </section>
-                            <section className={`p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex-grow ${scale == null ? 'hidden' : ''}`}>
+                            <section className={`p-3 bg-white/90 border-4 border-robin/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
                                 <h2 className="font-bold text-2xl text-robin">
                                     Harmony
                                 </h2>
-                                {getHarmony([...freqsActive]).map((r, idx) => (
-                                    <div key={idx}>
-                                        {r.map((i, jdx) => (
-                                            <div key={jdx}>
-                                                <meter min="0" max="20" high={10} value={i[1]} style={{transform:"scaleX(-1)"}}>
-                                                </meter>
-                                                <label>
-                                                    {i[0]}
-                                                </label>
-                                                <meter min="0" max="20" high={10} value={-i[1]}>
-                                                </meter>
-                                            </div>
+                                <div className='font-ysabeauInfant grid grid-cols-[repeat(5,auto)] justify-start'>
+                                    {[...getHarmony([...freqsActive])].map((r, idx) => (
+                                        <div key={idx} className='grid grid-cols-subgrid col-span-full'>
+                                            {JSON.parse(r[0]).map((i: number, jdx: number) => <HarmonyMeter key={jdx} error={r[1][jdx]} integer={i} />)}
+                                            <hr className='col-span-full border-clover'></hr>
+                                        </div>
                                         ))}
-                                        <hr></hr>
-                                    </div>
-                                    ))}
+                                </div>
                             </section>
                         </div>
                     </div>
