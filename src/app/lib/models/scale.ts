@@ -112,6 +112,13 @@ export default class Scale {
             }
     }
 
+    clone() {
+        const clone = new Scale(this.name, this.numL, this.numS, this.ratio, this.mode);
+        for (const [key, n] of this.#keys) clone.setKeyPitch(key, n);
+        for (const [key, color] of this.#colors) clone.setKeyColor(key, color);
+        return clone;
+    }
+
     get edo() {
         return this.#edo;
     }
@@ -128,6 +135,11 @@ export default class Scale {
 
     setKeyPitch(key: string, n: number) {
         this.#keys.set(key, n);
+    }
+
+    disableKey(key: string) {
+        this.#keys.delete(key);
+        this.#colors.delete(key);
     }
 
     setKeyColor(key: string, color: string) {

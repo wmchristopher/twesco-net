@@ -29,7 +29,7 @@ function KeyButton(
      * @param setKeyEdited displays editor fields for this key
      * @param edo          num EDO
      */
-    const n = data.n == null ? null : data.n % edo;
+    const n = data.n == null ? null : Math.round((data.n % edo) * 100) / 100;
     const cents = n == null ? null : n * 1200 / edo;
     return (
         <button key={data.char} className={`key key-${data.color ?? 'none'} ${keyActive ? 'key-active' : ''}`} style={{gridColumn: "span 2"}} onClick={() => setKeyEdited(data)}>
@@ -90,39 +90,62 @@ function Qwerty(
 }
 
 
-function KeyEditor ({keyData, scale, synth}: {keyData: KeyData | null, scale: Scale | null, synth: Tone.PolySynth | null}) {
-    const [keyN, setKeyN] = useState<number | string>(keyData?.n ?? '');
-    const [keyColor, setKeyColor] = useState<string>(keyData?.color ?? 'mallow');
+function KeyEditor ({keyData, scale, synth, setScale}: {keyData: KeyData | null, scale: Scale | null, synth: Tone.PolySynth | null, setScale: Dispatch<SetStateAction<Scale>>}) {
+    const [keyN, setKeyN] = useState<string>('');
+    const [keyColor, setKeyColor] = useState<string>('disabled');
+
+    useEffect(() => setKeyN(keyData?.n?.toString() ?? ''), [keyData]);
+    useEffect(() => setKeyColor(keyData?.color ?? 'disabled'), [keyData]);
 
     if (keyData == null || scale == null) return (<></>);
 
     const handleChangeN = (event: ChangeEvent<HTMLInputElement>) => {
+        if (keyColor === 'disabled') return;
         synth?.releaseAll();
-        const n = event.target.valueAsNumber ?? '';
-        scale.setKeyPitch(keyData.char, n);
+        const n = event.target.value;
         setKeyN(n);
+        let parsed = parseFloat(n);
+        if (isNaN(parsed)) return;
+        parsed = Math.round(parsed * 100) / 100;
+        scale.setKeyPitch(keyData.char, parsed);
+        setScale(scale.clone())
     }
 
-    const handleChangeColor = (event: ChangeEvent<HTMLSelectElement>) => {
+    const handleChangeColor = (event: ChangeEvent<HTMLInputElement>) => {
         const color = event.target.value;
+        if (color === 'disabled') {
+            const newScale = scale.clone()
+            newScale.disableKey(keyData.char);
+            setScale(newScale);
+            setKeyColor(color);
+            return;
+        }
         scale.setKeyColor(keyData.char, color);
         setKeyColor(color);
+        setScale(scale.clone())
     }
+    console.log(keyColor)
 
     return (
-        <form>
+        <form className='text-xl'>
             <h3>
-                {keyData.char?.toUpperCase()}
+                <code>
+                    {keyData.char?.toUpperCase()}
+                </code>
             </h3>
-            <code>
-                {JSON.stringify(keyData)}
-            </code>
-            <label>N\EDO</label>
-            <input type="number" value={keyN || 0} onChange={handleChangeN}></input>
-            <label>Color</label>
-            <select value={keyColor} onChange={handleChangeColor}>
-                {['mallow', 'clover', 'stereum', 'robin'].map((s) => (<option key={s} value={s}>{s}</option>))}
-            </select>
+            {['disabled', 'mallow', 'clover', 'stereum', 'robin'].map((s) => (
+                <label key={s} className={`me-4 font-semibold capitalize text-nowrap text-${s}`}>
+                    <input type='radio' value={s} name='color' onChange={handleChangeColor} checked={keyColor === s} />
+                    {s}
+                </label>
+            ))}
+            <br />
+            <label>
+                <span className='small-caps font-semibold'>
+                    edo
+                </span>-step
+                <input className='text-clover font-bold bg-transparent ms-3 disabled:opacity-50' type="number" value={keyN} min={-300} max={300} onChange={handleChangeN} />
+            </label>
         </form>
     )
 }
@@ -303,9 +326,9 @@ export default function Phone() {
                 <h1 className="hidden">
                     Microtonal Synthesizer
                 </h1>
-                <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(30ch,50ch)] gap-3">
-                    <div className="flex-grow basis-[fit-content] flex flex-col">
-                        <section className="p-3 bg-white/90 border-4 border-mallow/60 rounded-xl">
+                <div className="grid grid-cols-1 xl:grid-cols-[auto_minmax(30ch,50ch)] gap-3">
+                    <div className="flex-grow basis-[fit-content]">
+                        <section className="p-3 bg-white/90 border-4 border-mallow/60 rounded-xl min-w-[900px]">
                             <header className="font-ysabeauInfant text-xl text-mallow flex flex-row items-baseline">
                                 <h2 className="font-bold text-2xl text-mallow me-auto">
                                     {scaleInfo?.name ?? 'Scale'}
@@ -345,12 +368,12 @@ export default function Phone() {
                             </header>
                             <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
                         </section>
-                        <div className="grid grid-cols-2 gap-3 flex-grow">
+                        <div className="grid grid-cols-2 gap-3 h-[300px]">
                             <section className={`p-3 bg-white/90 border-4 border-clover/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
                                 <h2 className="font-bold text-2xl text-clover">
                                     Editor
                                 </h2>
-                                <KeyEditor keyData={keyEdited} scale={scale} synth={synth} />
+                                <KeyEditor keyData={keyEdited} scale={scale} synth={synth} setScale={setScale}/>
                             </section>
                             <section className={`p-3 bg-white/90 border-4 border-robin/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
                                 <h2 className="font-bold text-2xl text-robin">
