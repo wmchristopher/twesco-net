@@ -159,13 +159,13 @@ function getHarmony(
     freqs = freqs.sort()
     const base = freqs[0]
     const targetRatios = freqs.slice(1).map(f => f / base)
-    let result = new Map();
+    const result = new Map();
 
     for (let denom = 1; denom <= maxDenom; denom++) {
         let pushRatio = true;
-        let integers = [denom];
-        let errors = [0]
-        for (let r of targetRatios) {
+        const integers = [denom];
+        const errors = [0]
+        for (const r of targetRatios) {
             const num = Math.round(denom * r);
             const ratio = num / denom;
             const approxCents = 1200 * Math.log2(ratio)
