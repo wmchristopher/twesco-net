@@ -2,6 +2,7 @@
 
 import * as Tone from 'tone';
 import { getKeyFromCode } from './key';
+import { gcd } from '../utils';
 
 // Sets a baseline pitch based on C in 12-TET.
 const pitchC = 220 * 2 ** (1 / 4);
@@ -42,6 +43,8 @@ export default class Scale {
     #keys: Map<string, number>;
     #mode: number;
     #colors: Map<string, string>;
+    #numL: number;
+    #numS: number;
 
     constructor(
         public name: string,
@@ -50,9 +53,11 @@ export default class Scale {
         public ratio: [number, number],
         mode?: number
     ) {
-        const numLS = numL + numS;
+        this.#numL = numL;
+        this.#numS = numS;
         this.#edo = numL * ratio[0] + numS * ratio[1];
-        this.#mode = (((mode ?? 0) % numLS) + numLS) % numLS;
+        this.#mode = mode ?? 0;
+        this.mode = this.#mode;
         this.#colors = new Map();
 
         // Generate scale pattern.
@@ -130,7 +135,9 @@ export default class Scale {
         return this.#mode;
     }
     set mode(n) {
-        this.#mode = n % this.#edo;
+        const numLS = this.#numL + this.#numS;
+        n += numLS;
+        this.#mode = n % (numLS / gcd([this.#numL, this.#numS]));
     }
 
     setKeyPitch(key: string, n: number) {

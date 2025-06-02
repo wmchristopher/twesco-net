@@ -4,14 +4,7 @@ import * as Tone from 'tone';
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import Scale, { KeyData, ScaleInfo } from '@/app/lib/models/scale';
 import { getCodeFromKey } from '@/app/lib/models/key';
-
-function gcd(arr: number[]): number {
-    function helper(a: number, b: number) {
-        while (b !== 0) [a, b] = [b, a % b];
-        return Math.abs(a);
-    }
-    return arr.reduce(helper)
-}
+import { gcd } from '../lib/utils';
 
 function KeyButton(
     {data, keyActive, setKeyEdited, edo}: { 
@@ -225,6 +218,11 @@ export default function Phone() {
     const openHelp = () => helpRef.current?.showModal();
     const closeHelp = () => helpRef.current?.close();
 
+    // User input values
+    const [numL, setNumL] = useState<string>(scale.numL.toString());
+    const [numS, setNumS] = useState<string>(scale.numS.toString());
+    const [mode, setMode] = useState<string>(scale.mode.toString());
+
     const initializeTone = async () => {
         // Sets up the synthesizer with default settings.
         // Must be triggered by user action.
@@ -243,19 +241,32 @@ export default function Phone() {
 
     const handleScaleChange = (type: string) => (event: ChangeEvent<HTMLInputElement>) => {
         synth?.releaseAll();
-        let newVal = parseInt(event.target.value);
-        if (Number.isNaN(newVal)) return;
+        let userVal = event.target.value;
+        let newVal = parseInt(userVal);
 
-        newVal = Math.max(1, newVal);
-        newVal = Math.min(newVal, 10)
+        function boundVal(n: number) {
+            n = Math.max(1, n);
+            n = Math.min(n, 10);
+            return n
+        }
+        let boundedVal = boundVal(newVal);
+        let setVal, newScale;
 
         switch (type) {
             case 'L':
-                setScale(new Scale('myScale', newVal, scale.numS, scale.ratio, scale.mode));
-                return;
+                setVal = setNumL;
+                newScale = new Scale('myScale', boundedVal, scale.numS, scale.ratio, scale.mode);
+                break;
             case 's':
-                setScale(new Scale('myScale', scale.numL, newVal, scale.ratio, scale.mode));
+            default:
+                setVal = setNumS;
+                newScale = new Scale('myScale', scale.numL, boundedVal, scale.ratio, scale.mode);
         }
+        setVal(userVal);
+        if (Number.isNaN(newVal)) return;
+        if (boundedVal !== newVal) setVal(boundedVal.toString());
+        setScale(newScale);
+        setMode(newScale.mode.toString());
     }
 
     const handleRatioChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -271,9 +282,14 @@ export default function Phone() {
 
     const handleModeChange = (event: ChangeEvent<HTMLInputElement>) => {
         synth?.releaseAll();
-        const newMode = parseInt(event.target.value);
+        const userVal = event.target.value;
+        const newMode = parseInt(userVal);
+
+        setMode(userVal);
         if (Number.isNaN(newMode)) return;
-        setScale(prev => new Scale(prev.name, prev.numL, prev.numS, prev.ratio, newMode));
+        const newScale = new Scale(scale.name, scale.numL, scale.numS, scale.ratio, newMode)
+        setMode(newScale.mode.toString());
+        setScale(newScale);
     }
 
     useEffect(() => {
@@ -336,12 +352,12 @@ export default function Phone() {
                                 <a href="#" className="font-semibold italic mr-6 hover:text-opacity-65" onClick={openHelp}>
                                     Explain &#x261e;
                                 </a>
-                                <input name="l" type="number" className="text-end bg-transparent font-bold" value={scale.numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
+                                <input name="l" type="number" className="text-end bg-transparent font-bold" value={numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
                                 <label htmlFor="l">
                                     L
                                 </label>
 
-                                <input name="s" type="number" className="text-end ms-2 bg-transparent font-bold" value={scale.numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
+                                <input name="s" type="number" className="text-end ms-2 bg-transparent font-bold" value={numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
                                 <label htmlFor="s">
                                     s
                                 </label>
@@ -361,7 +377,7 @@ export default function Phone() {
                                 <label htmlFor="mode" className="ms-8 me-2">
                                     Mode
                                 </label>
-                                <input name="mode" type="number" className="bg-transparent font-bold" value={scale.mode} min={-2} max={99} onChange={handleModeChange}></input>
+                                <input name="mode" type="number" className="bg-transparent font-bold" value={mode} min={-2} max={99} onChange={handleModeChange}></input>
                                 <span className="ms-8 me-2">
                                     EDO: {scale.edo}
                                 </span>
