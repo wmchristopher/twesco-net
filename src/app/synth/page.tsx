@@ -241,15 +241,15 @@ export default function Phone() {
 
     const handleScaleChange = (type: string) => (event: ChangeEvent<HTMLInputElement>) => {
         synth?.releaseAll();
-        let userVal = event.target.value;
-        let newVal = parseInt(userVal);
+        const userVal = event.target.value;
+        const newVal = parseInt(userVal);
 
         function boundVal(n: number) {
             n = Math.max(1, n);
             n = Math.min(n, 10);
             return n
         }
-        let boundedVal = boundVal(newVal);
+        const boundedVal = boundVal(newVal);
         let setVal, newScale;
 
         switch (type) {
