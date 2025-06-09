@@ -73,13 +73,16 @@ export default class Scale {
 
         const rotate = (s: Array<string>, i: number) => s.slice(i).concat(s.slice(0, i))
 
-        const rotations = this.#scale.map(
-            (_, i) => rotate(this.#scale, i)
-        ).sort(
-            (a, b) => a.join('').localeCompare(b.join(''), 'en')
+        // Create all possible rotations (map); remove duplicates (set); sort by brightness
+        const rotations = [...new Set(
+            this.#scale.map(
+                (_, i) => rotate(this.#scale, i).join('')
+            )
+        )].sort(
+            (a, b) => a.localeCompare(b, 'en')
         );
 
-        this.#scale = rotations[this.#mode]
+        this.#scale = [...rotations[this.#mode]]
 
         this.#keys = new Map();
 
