@@ -201,7 +201,7 @@ export default function Phone() {
     const [synth, setSynth] = useState<Tone.PolySynth | null>(null);
 
     // Scale object as defined by L and s fields.
-    const [scale, setScale] = useState<Scale>(new Scale('Diatonic', 5, 2, [2, 1], 6));
+    const [scale, setScale] = useState<Scale>(new Scale('Diatonic', 5, 2, [2, 1]));
     const [scaleInfo, setScaleInfo] = useState<ScaleInfo|null>(null);
 
     // Set of active (depressed) keys.

@@ -71,7 +71,15 @@ export default class Scale {
             }
         }
 
-        this.#scale = this.#scale.slice(this.#mode).concat(this.#scale.slice(0, this.#mode));
+        const rotate = (s: Array<any>, i: number) => s.slice(i).concat(s.slice(0, i))
+
+        const rotations = this.#scale.map(
+            (_, i) => rotate(this.#scale, i)
+        ).sort(
+            (a, b) => a.join('').localeCompare(b.join(''), 'en')
+        );
+
+        this.#scale = rotations[this.#mode]
 
         this.#keys = new Map();
 
