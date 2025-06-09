@@ -71,7 +71,7 @@ export default class Scale {
             }
         }
 
-        const rotate = (s: Array<any>, i: number) => s.slice(i).concat(s.slice(0, i))
+        const rotate = (s: Array<string>, i: number) => s.slice(i).concat(s.slice(0, i))
 
         const rotations = this.#scale.map(
             (_, i) => rotate(this.#scale, i)
