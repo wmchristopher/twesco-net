@@ -53,12 +53,20 @@
   section {
     @apply mb-5 hyphens-auto;
   }
-  p, table {
+  p, details {
     @apply mb-3;
   }
 
-  .scale-info h3 {
+  .scale-info h3, .scale-info h4 {
     @apply font-cormorantInfant;
+  }
+
+  .scale-info h3 {
+    @apply text-lg text-clover;
+  }
+
+  .scale-info table {
+    @apply w-full;
   }
 
   td {
@@ -67,7 +75,7 @@
 
   rt {
     font-size:75%;
-    @apply mt-1 font-light;
+    @apply mt-1 font-light text-center;
   }
 
   meter::-webkit-meter-bar {
