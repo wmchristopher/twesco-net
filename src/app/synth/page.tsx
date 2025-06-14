@@ -83,7 +83,7 @@ function Qwerty(
 }
 
 
-function KeyEditor ({keyData, scale, synth, setScale}: {keyData: KeyData | null, scale: Scale | null, synth: Tone.PolySynth | null, setScale: Dispatch<SetStateAction<Scale>>}) {
+function KeyEditor ({keyData, scale, synth, setScale, resetKeys}: {keyData: KeyData | null, scale: Scale | null, synth: Tone.PolySynth | null, setScale: Dispatch<SetStateAction<Scale>>, resetKeys: () => void}) {
     const [keyN, setKeyN] = useState<string>('');
     const [keyColor, setKeyColor] = useState<string>('disabled');
 
@@ -94,7 +94,7 @@ function KeyEditor ({keyData, scale, synth, setScale}: {keyData: KeyData | null,
 
     const handleChangeN = (event: ChangeEvent<HTMLInputElement>) => {
         if (keyColor === 'disabled') return;
-        synth?.releaseAll();
+        resetKeys();
         const n = event.target.value;
         setKeyN(n);
         let parsed = parseFloat(n);
@@ -223,6 +223,12 @@ export default function Phone() {
     const [numS, setNumS] = useState<string>(scale.numS.toString());
     const [mode, setMode] = useState<string>(scale.mode.toString());
 
+    function resetKeys() {
+        synth?.releaseAll();
+        setKeysActive(new Set());
+        setFreqsActive(new Set());
+    }
+
     const initializeTone = async () => {
         // Sets up the synthesizer with default settings.
         // Must be triggered by user action.
@@ -240,8 +246,7 @@ export default function Phone() {
     }
 
     const handleScaleChange = (type: string) => (event: ChangeEvent<HTMLInputElement>) => {
-        synth?.releaseAll();
-        setKeysActive(new Set());
+        resetKeys();
         const userVal = event.target.value;
         const newVal = parseInt(userVal);
 
@@ -271,7 +276,7 @@ export default function Phone() {
     }
 
     const handleRatioChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        synth?.releaseAll();
+        resetKeys();
         const newRatio = [
             parseInt(event.target.value[0]),
             parseInt(event.target.value.slice(-1))
@@ -282,7 +287,7 @@ export default function Phone() {
     const ratios = [[4,1],[3,1],[2,1],[4,2],[3,2],[4,3]];
 
     const handleModeChange = (event: ChangeEvent<HTMLInputElement>) => {
-        synth?.releaseAll();
+        resetKeys();
         const userVal = event.target.value;
         const newMode = parseInt(userVal);
 
@@ -390,7 +395,7 @@ export default function Phone() {
                                 <h2 className="font-bold text-2xl text-clover">
                                     Editor
                                 </h2>
-                                <KeyEditor keyData={keyEdited} scale={scale} synth={synth} setScale={setScale}/>
+                                <KeyEditor keyData={keyEdited} scale={scale} synth={synth} setScale={setScale} resetKeys={resetKeys}/>
                             </section>
                             <section className={`shadow-section-medium overflow-y-auto p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex flex-col ${scale == null ? 'hidden' : ''}`}>
                                 <h2 className="font-bold text-2xl text-robin shrink-0">
