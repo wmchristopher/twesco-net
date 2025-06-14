@@ -6,6 +6,47 @@
 }
 
 @layer components {
+  :root {
+    --mallow: oklch(57% 0.13 315);
+    --clover: oklch(57% 0.13 160);
+    --stereum: oklch(60% 0.15 38);
+    --robin: oklch(65% 0.09 235);
+    --shadow-color: 132deg 26% 63%;
+    --shadow-elevation-low:
+      -0.2px 0.7px 0.8px hsl(var(--shadow-color) / 0.28),
+      -0.2px 1.1px 1.2px -1.4px hsl(var(--shadow-color) / 0.26),
+      -0.6px 2.6px 2.9px -2.8px hsl(var(--shadow-color) / 0.24);
+    --shadow-elevation-medium:
+      -0.2px 0.7px 0.8px hsl(var(--shadow-color) / 0.23),
+      -0.4px 1.7px 1.9px -0.7px hsl(var(--shadow-color) / 0.22),
+      -0.7px 3.3px 3.6px -1.4px hsl(var(--shadow-color) / 0.21),
+      -1.4px 6.6px 7.3px -2.1px hsl(var(--shadow-color) / 0.2),
+      -2.8px 12.9px 14.3px -2.8px hsl(var(--shadow-color) / 0.19);
+    --shadow-elevation-high:
+      -0.2px 0.7px 0.8px hsl(var(--shadow-color) / 0.22),
+      -0.6px 2.6px 2.9px -0.3px hsl(var(--shadow-color) / 0.21),
+      -0.9px 4.4px 4.9px -0.6px hsl(var(--shadow-color) / 0.21),
+      -1.4px 6.7px 7.4px -0.9px hsl(var(--shadow-color) / 0.2),
+      -2.1px 9.9px 10.9px -1.2px hsl(var(--shadow-color) / 0.2),
+      -3.1px 14.4px 15.9px -1.6px hsl(var(--shadow-color) / 0.19),
+      -4.4px 20.6px 22.7px -1.9px hsl(var(--shadow-color) / 0.19),
+      -6.3px 29.1px 32.2px -2.2px hsl(var(--shadow-color) / 0.18),
+      -8.7px 40.3px 44.5px -2.5px hsl(var(--shadow-color) / 0.18),
+      -11.7px 54.5px 60.2px -2.8px hsl(var(--shadow-color) / 0.17);
+  }
+
+  .shadow-section-medium {
+    box-shadow: var(--shadow-elevation-medium);
+  }
+
+  .shadow-section-high {
+    box-shadow: var(--shadow-elevation-high);
+  }
+
+  .shadow-section * {
+    --shadow-color: 132deg 32% 68%;
+  }
+
   main {
     @apply font-ysabeau;
   }
@@ -17,7 +58,21 @@
     @apply text-mallow;
   }
   .site-header {
-    @apply bg-robin/75 text-3xl font-montserrat font-medium py-3 border-2 border-robin/30;
+    @apply bg-robin/75 text-3xl font-montserrat font-medium py-3 border-b-white;
+    background-image:
+      linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0)  0%, 
+        color-mix(in oklch, var(--robin), transparent 90%) 80%, 
+        color-mix(in oklch, var(--robin), transparent 50%) 100%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0)  0%, 
+        color-mix(in oklch, var(--robin), transparent 85%) 85%,
+        color-mix(in oklch, var(--robin), transparent 70%) 95%,
+        color-mix(in oklch, white, transparent 90%) 100%
+      );
   }
   .site-header a {
     @apply text-white;
@@ -25,6 +80,11 @@
 
   .key {
     @apply m-2 px-3 py-2 rounded opacity-100;
+    box-shadow: var(--shadow-elevation-medium);
+    background-image: 
+      linear-gradient(90deg,rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 95%, rgba(255, 255, 255, 0.1) 100%),
+      linear-gradient(0deg,rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 95%, rgba(255, 255, 255, 0.2) 100%),
+      linear-gradient(180deg,rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.03) 95%, rgba(0, 0, 0, 0.1) 100%);
   }
   .key-mallow {
     @apply text-white bg-mallow;
@@ -39,11 +99,16 @@
     @apply text-white bg-robin;
   }
   
+  .key-active {
+    @apply opacity-85;
+    box-shadow: var(--shadow-elevation-low);
+    background-image: none;
+  }
+
   .key-none {
     @apply opacity-50;
-  }
-  .key-active {
-    @apply opacity-80;
+    box-shadow: none;
+    background-image: none;
   }
 
   .small-caps {
@@ -62,7 +127,7 @@
   }
 
   .scale-info h3 {
-    @apply text-lg text-clover;
+    @apply text-lg text-robin;
   }
 
   .scale-info table {

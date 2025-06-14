@@ -127,8 +127,8 @@ function KeyEditor ({keyData, scale, synth, setScale}: {keyData: KeyData | null,
                 </code>
             </h3>
             {['disabled', 'mallow', 'clover', 'stereum', 'robin'].map((s) => (
-                <label key={s} className={`me-4 font-semibold capitalize text-nowrap text-${s}`}>
-                    <input type='radio' value={s} name='color' onChange={handleChangeColor} checked={keyColor === s} />
+                <label key={s} className={`cursor-pointer me-4 font-semibold capitalize text-nowrap text-${s} ${keyColor === s ? 'font-bold underline' : 'font-normal'}`}>
+                    <input type='radio' value={s} name='color' onChange={handleChangeColor} checked={keyColor === s} className={`opacity-0 fixed pointer-events-none`} />
                     {s}
                 </label>
             ))}
@@ -241,6 +241,7 @@ export default function Phone() {
 
     const handleScaleChange = (type: string) => (event: ChangeEvent<HTMLInputElement>) => {
         synth?.releaseAll();
+        setKeysActive(new Set());
         const userVal = event.target.value;
         const newVal = parseInt(userVal);
 
@@ -344,7 +345,7 @@ export default function Phone() {
                 </h1>
                 <div className="grid grid-cols-1 xl:grid-cols-[auto_minmax(30ch,50ch)] gap-3">
                     <div className="flex-grow basis-[fit-content]">
-                        <section className="p-3 bg-white/90 border-4 border-mallow/60 rounded-xl min-w-[900px]">
+                        <section className="shadow-sectio-medium p-3 bg-white/90 border-4 border-mallow/60 rounded-xl min-w-[900px]">
                             <header className="font-ysabeauInfant text-xl text-mallow flex flex-row items-baseline">
                                 <h2 className="font-bold text-2xl text-mallow me-auto">
                                     {scaleInfo?.name ?? 'Scale'}
@@ -385,13 +386,13 @@ export default function Phone() {
                             <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
                         </section>
                         <div className="grid grid-cols-2 gap-3 h-[300px] max-h-[300px]">
-                            <section className={`p-3 bg-white/90 border-4 border-clover/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
+                            <section className={`shadow-section-medium p-3 bg-white/90 border-4 border-clover/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
                                 <h2 className="font-bold text-2xl text-clover">
                                     Editor
                                 </h2>
                                 <KeyEditor keyData={keyEdited} scale={scale} synth={synth} setScale={setScale}/>
                             </section>
-                            <section className={`overflow-y-auto p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex flex-col ${scale == null ? 'hidden' : ''}`}>
+                            <section className={`shadow-section-medium overflow-y-auto p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex flex-col ${scale == null ? 'hidden' : ''}`}>
                                 <h2 className="font-bold text-2xl text-robin shrink-0">
                                     Harmony
                                 </h2>
@@ -409,7 +410,7 @@ export default function Phone() {
 
                         </div>
                     </div>
-                    <section className={`p-3 bg-white/90 border-4 border-stereum/60 rounded-xl flex-grow basis-[50ch] max-h-[90vh] text-black/80 overflow-auto scale-info text-justify ${scale == null ? 'hidden' : ''}`}>
+                    <section className={`shadow-section-medium p-3 bg-white/90 border-4 border-stereum/60 rounded-xl flex-grow basis-[50ch] max-h-[90vh] text-black/80 overflow-auto scale-info text-justify ${scale == null ? 'hidden' : ''}`}>
                         <h2 className="font-bold text-2xl text-stereum">
                             Scale Information
                         </h2>
@@ -417,7 +418,7 @@ export default function Phone() {
                         </div>
                     </section>
                 </div>
-                <dialog ref={helpRef} className="px-8 py-6 rounded max-w-prose">
+                <dialog ref={helpRef} className="px-8 py-6 rounded max-w-prose shadow-section-high">
                     <button className='float-end font-semibold italic mb-3 text-mallow hover:text-opacity-65' onClick={closeHelp}>Close</button>
                     <section className='clear-both'>
                         <p>
