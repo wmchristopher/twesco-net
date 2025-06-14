@@ -345,7 +345,7 @@ export default function Phone() {
                 </h1>
                 <div className="grid grid-cols-1 xl:grid-cols-[auto_minmax(30ch,50ch)] gap-3">
                     <div className="flex-grow basis-[fit-content]">
-                        <section className="shadow-sectio-medium p-3 bg-white/90 border-4 border-mallow/60 rounded-xl min-w-[900px]">
+                        <section className="shadow-section-medium p-3 bg-white/90 border-4 border-mallow/60 rounded-xl min-w-[900px]">
                             <header className="font-ysabeauInfant text-xl text-mallow flex flex-row items-baseline">
                                 <h2 className="font-bold text-2xl text-mallow me-auto">
                                     {scaleInfo?.name ?? 'Scale'}
