@@ -83,7 +83,7 @@ function Qwerty(
 }
 
 
-function KeyEditor ({keyData, scale, synth, setScale, resetKeys}: {keyData: KeyData | null, scale: Scale | null, synth: Tone.PolySynth | null, setScale: Dispatch<SetStateAction<Scale>>, resetKeys: () => void}) {
+function KeyEditor ({keyData, scale, setScale, resetKeys}: {keyData: KeyData | null, scale: Scale | null, setScale: Dispatch<SetStateAction<Scale>>, resetKeys: () => void}) {
     const [keyN, setKeyN] = useState<string>('');
     const [keyColor, setKeyColor] = useState<string>('disabled');
 
@@ -395,7 +395,7 @@ export default function Phone() {
                                 <h2 className="font-bold text-2xl text-clover">
                                     Editor
                                 </h2>
-                                <KeyEditor keyData={keyEdited} scale={scale} synth={synth} setScale={setScale} resetKeys={resetKeys}/>
+                                <KeyEditor keyData={keyEdited} scale={scale} setScale={setScale} resetKeys={resetKeys}/>
                             </section>
                             <section className={`shadow-section-medium overflow-y-auto p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex flex-col ${scale == null ? 'hidden' : ''}`}>
                                 <h2 className="font-bold text-2xl text-robin shrink-0">
