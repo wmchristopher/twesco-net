@@ -457,7 +457,9 @@ export default function Phone() {
                             If we move around the large and small steps, what “modes” can be discovered?
                         </p>
                         <p>
-                            How many times must we divide the octave to make these scales?  (EDO = equal divisions of the octave)
+                            How many times must we divide the octave to make these scales?
+                            <br />
+                            (EDO = equal divisions of the octave)
                         </p>
                     </section>
                     <section>
