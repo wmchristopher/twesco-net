@@ -345,18 +345,18 @@ export default function Phone() {
     return (
         <main style={{backgroundImage: 'url("/static/image.png")', backgroundRepeat: "repeat", backgroundSize: "417px 192px"}}
               className="flex-grow p-4">
-            <article>
+            <article className="h-full">
                 <h1 className="hidden">
                     Microtonal Synthesizer
                 </h1>
                 {isMobileDevice() ? (
-                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl font-semibold h-full flex items-center justify-center py-80">
+                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl font-semibold h-full flex items-center justify-center">
                         <p>
                             Try me on a desktop browser!
                         </p>
                     </section>
                 ) : synth == null ? (
-                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl font-semibold h-full flex items-center justify-center py-80">
+                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl font-semibold h-full flex items-center justify-center">
                         <p>
                             Press any key to begin.
                         </p>
