@@ -145,7 +145,7 @@ function KeyEditor ({keyData, scale, setScale, resetKeys}: {keyData: KeyData | n
 
 function getHarmony(
     freqs: number[],
-    maxDenom: number = 20,
+    maxDenom: number = 32,
     maxError: number = 20
 ) {
     if (freqs.length < 2) return []
@@ -305,7 +305,7 @@ export default function Phone() {
             // User presses key down.  User may hold key to hold note.
             if (synth == null) initializeTone();
     
-            if (e.repeat || scale == null) return;  // Do nothing if this is a "repeat" keydown, i.e. a held note.
+            if (e.repeat || scale == null || synth == null) return;  // Do nothing if this is a "repeat" keydown, i.e. a held note.
     
             setKeysActive(ka => new Set(ka).add(e.code))  // Highlight key.
             const freq = scale.getPitch(e.code)
@@ -348,81 +348,89 @@ export default function Phone() {
                 <h1 className="hidden">
                     Microtonal Synthesizer
                 </h1>
-                <div className="grid grid-cols-1 xl:grid-cols-[auto_minmax(30ch,50ch)] gap-3">
-                    <div className="flex-grow basis-[fit-content]">
-                        <section className="shadow-section-medium p-3 bg-white/90 border-4 border-mallow/60 rounded-xl min-w-[900px]">
-                            <header className="font-ysabeauInfant text-xl text-mallow flex flex-row items-baseline">
-                                <h2 className="font-bold text-2xl text-mallow me-auto">
-                                    {scaleInfo?.name ?? 'Scale'}
-                                </h2>
-                                <a href="#" className="font-semibold italic mr-6 hover:text-opacity-65" onClick={openHelp}>
-                                    Explain &#x261e;
-                                </a>
-                                <input name="l" type="number" className="text-end bg-transparent font-bold" value={numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
-                                <label htmlFor="l">
-                                    L
-                                </label>
-
-                                <input name="s" type="number" className="text-end ms-2 bg-transparent font-bold" value={numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
-                                <label htmlFor="s">
-                                    s
-                                </label>
-
-                                <label htmlFor="ratio" className="ms-10 me-2">
-                                    Ratio
-                                </label>
-                                <select
-                                    name="ratio"
-                                    className="bg-transparent font-bold"
-                                    value={scale.ratio.toString()}
-                                    onChange={handleRatioChange}
-                                >
-                                    {ratios.map((r) => (<option key={r.toString()} value={r.toString()}>{r.toString().replace(',', ':')}</option>))}
-                                </select>
-
-                                <label htmlFor="mode" className="ms-8 me-2">
-                                    Mode
-                                </label>
-                                <input name="mode" type="number" className="bg-transparent font-bold" value={mode} min={-2} max={99} onChange={handleModeChange}></input>
-                                <span className="ms-8 me-2">
-                                    EDO: {scale.edo}
-                                </span>
-                            </header>
-                            <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
-                        </section>
-                        <div className="grid grid-cols-2 gap-3 h-[300px] max-h-[300px]">
-                            <section className={`shadow-section-medium p-3 bg-white/90 border-4 border-clover/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
-                                <h2 className="font-bold text-2xl text-clover">
-                                    Editor
-                                </h2>
-                                <KeyEditor keyData={keyEdited} scale={scale} setScale={setScale} resetKeys={resetKeys}/>
-                            </section>
-                            <section className={`shadow-section-medium overflow-y-auto p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex flex-col ${scale == null ? 'hidden' : ''}`}>
-                                <h2 className="font-bold text-2xl text-robin shrink-0">
-                                    Harmony
-                                </h2>
-                                <div className="overflow-y-auto flex-1 font-ysabeauInfant grid grid-cols-[1fr_auto_auto_auto_1fr] content-start justify-center items-start">
-                                    {[...getHarmony([...freqsActive])].map((r, idx) => (
-                                        <div key={idx} className="grid grid-cols-subgrid col-span-full">
-                                            {JSON.parse(r[0]).map((i: number, jdx: number) => (
-                                                <HarmonyMeter key={jdx} error={r[1][jdx]} integer={i} />
-                                            ))}
-                                            <hr className="col-span-full border-clover" />
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-
-                        </div>
-                    </div>
-                    <section className={`shadow-section-medium p-3 bg-white/90 border-4 border-stereum/60 rounded-xl flex-grow basis-[50ch] max-h-[90vh] text-black/80 overflow-auto scale-info text-justify ${scale == null ? 'hidden' : ''}`}>
-                        <h2 className="font-bold text-2xl text-stereum">
-                            Scale Information
-                        </h2>
-                        <div style={{columns:"65ch auto", columnGap:"3rem"}} dangerouslySetInnerHTML={{__html: scaleInfo?.info ?? 'No info for this scale.'}}>
-                        </div>
+                {synth == null ? (
+                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl font-semibold h-full flex items-center justify-center py-80">
+                        <p>
+                            Press any key to begin.
+                        </p>
                     </section>
-                </div>
+                ) : (
+                    <div className="grid grid-cols-1 xl:grid-cols-[auto_minmax(30ch,50ch)] gap-3">
+                        <div className="flex-grow basis-[fit-content]">
+                            <section className="shadow-section-medium p-3 bg-white/90 border-4 border-mallow/60 rounded-xl min-w-[900px]">
+                                <header className="font-ysabeauInfant text-xl text-mallow flex flex-row items-baseline">
+                                    <h2 className="font-bold text-2xl text-mallow me-auto">
+                                        {scaleInfo?.name ?? 'Scale'}
+                                    </h2>
+                                    <a href="#" className="font-semibold italic mr-6 hover:text-opacity-65" onClick={openHelp}>
+                                        Explain &#x261e;
+                                    </a>
+                                    <input name="l" type="number" className="text-end bg-transparent font-bold" value={numL} min={1} max={10} onChange={handleScaleChange('L')}></input>
+                                    <label htmlFor="l">
+                                        L
+                                    </label>
+
+                                    <input name="s" type="number" className="text-end ms-2 bg-transparent font-bold" value={numS} min={1} max={10} onChange={handleScaleChange('s')}></input>
+                                    <label htmlFor="s">
+                                        s
+                                    </label>
+
+                                    <label htmlFor="ratio" className="ms-10 me-2">
+                                        Ratio
+                                    </label>
+                                    <select
+                                        name="ratio"
+                                        className="bg-transparent font-bold"
+                                        value={scale.ratio.toString()}
+                                        onChange={handleRatioChange}
+                                    >
+                                        {ratios.map((r) => (<option key={r.toString()} value={r.toString()}>{r.toString().replace(',', ':')}</option>))}
+                                    </select>
+
+                                    <label htmlFor="mode" className="ms-8 me-2">
+                                        Mode
+                                    </label>
+                                    <input name="mode" type="number" className="bg-transparent font-bold" value={mode} min={-2} max={99} onChange={handleModeChange}></input>
+                                    <span className="ms-8 me-2">
+                                        EDO: {scale.edo}
+                                    </span>
+                                </header>
+                                <Qwerty scale={scale} keysActive={keysActive} setKeyEdited={setKeyEdited}/>
+                            </section>
+                            <div className="grid grid-cols-2 gap-3 h-[300px] max-h-[300px]">
+                                <section className={`shadow-section-medium p-3 bg-white/90 border-4 border-clover/60 rounded-xl ${scale == null ? 'hidden' : ''}`}>
+                                    <h2 className="font-bold text-2xl text-clover">
+                                        Editor
+                                    </h2>
+                                    <KeyEditor keyData={keyEdited} scale={scale} setScale={setScale} resetKeys={resetKeys}/>
+                                </section>
+                                <section className={`shadow-section-medium overflow-y-auto p-3 bg-white/90 border-4 border-robin/60 rounded-xl flex flex-col ${scale == null ? 'hidden' : ''}`}>
+                                    <h2 className="font-bold text-2xl text-robin shrink-0">
+                                        Harmony
+                                    </h2>
+                                    <div className="overflow-y-auto flex-1 font-ysabeauInfant grid grid-cols-[1fr_auto_auto_auto_1fr] content-start justify-center items-start">
+                                        {[...getHarmony([...freqsActive])].map((r, idx) => (
+                                            <div key={idx} className="grid grid-cols-subgrid col-span-full">
+                                                {JSON.parse(r[0]).map((i: number, jdx: number) => (
+                                                    <HarmonyMeter key={jdx} error={r[1][jdx]} integer={i} />
+                                                ))}
+                                                <hr className="col-span-full border-clover" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+
+                            </div>
+                        </div>
+                        <section className={`shadow-section-medium p-3 bg-white/90 border-4 border-stereum/60 rounded-xl flex-grow basis-[50ch] max-h-[90vh] text-black/80 overflow-auto scale-info text-justify ${scale == null ? 'hidden' : ''}`}>
+                            <h2 className="font-bold text-2xl text-stereum">
+                                Scale Information
+                            </h2>
+                            <div style={{columns:"65ch auto", columnGap:"3rem"}} dangerouslySetInnerHTML={{__html: scaleInfo?.info ?? 'No info for this scale.'}}>
+                            </div>
+                        </section>
+                    </div>
+                )}
                 <dialog ref={helpRef} className="px-8 py-6 rounded max-w-prose shadow-section-high">
                     <button className='float-end font-semibold italic mb-3 text-mallow hover:text-opacity-65' onClick={closeHelp}>Close</button>
                     <section className='clear-both'>
