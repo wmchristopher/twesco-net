@@ -454,10 +454,10 @@ export default function Phone() {
                             What does it sound like when a large step is twice the size of a small step?  Three times?
                         </p>
                         <p>
-                            If we move around where large and small steps are, what “modes” can be discovered?
+                            If we move around the large and small steps, what “modes” can be discovered?
                         </p>
                         <p>
-                            How many times do we need to divide the octave to make these scales?  (EDO = equal divisions of the octave)
+                            How many times must we divide the octave to make these scales?  (EDO = equal divisions of the octave)
                         </p>
                     </section>
                     <section>
@@ -465,13 +465,13 @@ export default function Phone() {
                             Keyboard interface
                         </h3>
                         <p>
-                            The number in bold shows the order of notes from low to high.
+                            The numbers in bold show the order of notes from low to high.
                         </p>
                         <p>
-                            The number on the bottom gives the cents above the root note.  One cent is one 1,200th of an octave.
+                            The numbers on the bottom give the cents above the root note.  One cent is one 1,200th of an octave.
                         </p>
                         <p>
-                            The scale is set along the row of keys starting with key&nbsp;<i>A</i>.
+                            The scale is set along the row of keys starting with key&nbsp;<span className="font-semibold">A</span>.
                         </p>
                         <p>
                             The root note and octaves are marked in <span className="text-stereum font-bold">
