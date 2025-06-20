@@ -217,6 +217,7 @@ export default function Phone() {
 
     const openHelp = () => helpRef.current?.showModal();
     const closeHelp = () => helpRef.current?.close();
+    const isMobileDevice = () => /Mobi|Android|iPhone|iPad|iPod|webOS|BlackBerry/i.test(navigator.userAgent);
 
     // User input values
     const [numL, setNumL] = useState<string>(scale.numL.toString());
@@ -348,7 +349,13 @@ export default function Phone() {
                 <h1 className="hidden">
                     Microtonal Synthesizer
                 </h1>
-                {synth == null ? (
+                {isMobileDevice() ? (
+                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl font-semibold h-full flex items-center justify-center py-80">
+                        <p>
+                            Try me on a desktop browser!
+                        </p>
+                    </section>
+                ) : synth == null ? (
                     <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl font-semibold h-full flex items-center justify-center py-80">
                         <p>
                             Press any key to begin.
