@@ -441,62 +441,66 @@ export default function Phone() {
                 <dialog ref={helpRef} className="px-8 py-6 rounded max-w-prose shadow-section-high">
                     <button className='float-end font-semibold italic mb-3 text-mallow hover:text-opacity-65' onClick={closeHelp}>Close</button>
                     <section className='clear-both'>
+                        <h3>
+                            How this works
+                        </h3>
                         <p>
-                            This musical keyboard is built for <b>moment&nbsp;of&nbsp;symmetry</b> scales (<span className='small-caps font-semibold'>mos</span>),
-                            which are formed by two step sizes: one large (L) and one small (s).
+                            Classical major and minor scales are made up of two kinds of steps: whole and half steps.
                         </p>
                         <p>
-                            For example, the diatonic scale is <i className="font-ysabeauInfant">5L&nbsp;2s</i>—five large and two small steps.
-                        </p>
-                    </section>
-                    <section>
-                        <p>
-                            <b>L</b> and <b>s</b> set how many steps of each size are in the scale.
+                            What if there were different numbers of large (L) and small (s) steps?
                         </p>
                         <p>
-                            <b>Ratio</b> sets the ratio between the step sizes.
+                            What does it sound like when a large step is twice the size of a small step?  Three times?
                         </p>
                         <p>
-                            <b>Mode</b> shifts the starting note of the scale.
+                            If we move around where large and small steps are, what “modes” can be discovered?
                         </p>
                         <p>
-                            <b>EDO</b> (<i>equal divisions of the octave</i>) derives from the step counts and ratio.
-                        </p>
-                        <p>With the default <i className="font-ysabeauInfant">2:1 5L&nbsp;2s</i>:
-                        <br></br>
-                        <span className="font-ysabeauInfant text-nowrap">(5 &times; 2) + (2 &times; 1) = 12</span>
-                        <br></br>
-                        &hellip;so the octave must divide into 12.
+                            How many times do we need to divide the octave to make these scales?  (EDO = equal divisions of the octave)
                         </p>
                     </section>
                     <section>
+                        <h3>
+                            Keyboard interface
+                        </h3>
                         <p>
-                            Each active key of the keyboard displays three values. 
+                            The number in bold shows the order of notes from low to high.
                         </p>
                         <p>
-                            The number in bold is <b> <span className="small-caps font-extrabold">edo</span>-steps</b> above the root note
-                            (<i>e.g.</i>, in 12-<span className="small-caps font-semibold">edo</span>, how many 12ths of an octave, or semitones).
+                            The number on the bottom gives the cents above the root note.  One cent is one 1,200th of an octave.
                         </p>
                         <p>
-                            The glyph on the right indicates the key on a <span className="small-caps font-semibold">qwerty</span> keyboard to which this note is mapped.
+                            The scale is set along the row of keys starting with key&nbsp;<i>A</i>.
                         </p>
                         <p>
-                            The decimal value on the bottom gives the cents above the root note.  One cent is one 1,200th of an octave.
+                            The root note and octaves are marked in <span className="text-stereum font-bold">
+                                orange
+                            </span>; 
+                            other notes in the scale are <span className="text-mallow font-bold">
+                                purple
+                            </span>.
+                        </p>
+                        <p>
+                            Chromatic notes (outside the scale) are  <span className="text-clover font-bold">
+                                green
+                            </span> and  <span className="text-robin font-bold">
+                                azure
+                            </span>.
                         </p>
                     </section>
                     <section>
+                        <h3>
+                            Harmony interface
+                        </h3>
                         <p>
-                            The selected <span className="small-caps font-semibold">mos</span> is set along the row of keys starting
-                            with <span className="small-caps font-semibold">edo</span>-step&nbsp;<i className="font-ysabeauInfant">0</i>, key&nbsp;<i>A</i>.
+                            The harmony box shows information when you play several notes at once.
                         </p>
                         <p>
-                            The root note and octaves are marked in orange; other scale degrees are purple.
+                            Notes sound harmonious when their frequencies approximate simple integer ratios like 3:2 or 5:4 that are found in the harmonic series.
                         </p>
                         <p>
-                            Chromatic notes are green and azure.
-                        </p>
-                        <p>
-                            Vertically aligned keys are set so that the higher key on the keyboard plays the higher pitch.
+                            The error bars show the tuning error from those frequencies.
                         </p>
                     </section>
                 </dialog>

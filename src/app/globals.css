@@ -126,7 +126,7 @@
     @apply font-cormorantInfant;
   }
 
-  .scale-info h3 {
+  .scale-info h3, dialog h3 {
     @apply text-lg text-robin;
   }
 
