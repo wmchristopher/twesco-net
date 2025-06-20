@@ -350,13 +350,13 @@ export default function Phone() {
                     Microtonal Synthesizer
                 </h1>
                 {isMobileDevice() ? (
-                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl font-semibold h-full flex items-center justify-center">
+                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl text-clover font-semibold h-full flex items-center justify-center">
                         <p>
                             Try me on a desktop browser!
                         </p>
                     </section>
                 ) : synth == null ? (
-                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl font-semibold h-full flex items-center justify-center">
+                    <section className="bg-white/85 border-4 border-white rounded-xl text-center text-4xl text-clover font-semibold h-full flex items-center justify-center">
                         <p>
                             Press any key to begin.
                         </p>
