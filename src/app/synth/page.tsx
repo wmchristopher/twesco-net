@@ -250,28 +250,27 @@ export default function Phone() {
         resetKeys();
         const userVal = event.target.value;
         const newVal = parseInt(userVal);
-
         function boundVal(n: number) {
             n = Math.max(1, n);
             n = Math.min(n, 10);
             return n
         }
         const boundedVal = boundVal(newVal);
-        let setVal, newScale;
-
+        let setVal, makeNewScale;
         switch (type) {
             case 'L':
                 setVal = setNumL;
-                newScale = new Scale('myScale', boundedVal, scale.numS, scale.ratio, scale.mode);
+                makeNewScale = () => new Scale('myScale', boundedVal, scale.numS, scale.ratio, scale.mode);
                 break;
             case 's':
             default:
                 setVal = setNumS;
-                newScale = new Scale('myScale', scale.numL, boundedVal, scale.ratio, scale.mode);
+                makeNewScale = () => new Scale('myScale', scale.numL, boundedVal, scale.ratio, scale.mode);
         }
         setVal(userVal);
         if (Number.isNaN(newVal)) return;
         if (boundedVal !== newVal) setVal(boundedVal.toString());
+        const newScale = makeNewScale();
         setScale(newScale);
         setMode(newScale.mode.toString());
     }
