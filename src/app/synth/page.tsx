@@ -341,6 +341,10 @@ export default function Phone() {
             .then(setScaleInfo)
     }, [scale])
 
+    useEffect(() => {
+        document.addEventListener('visibilitychange', resetKeys)
+    }, [keysActive, freqsActive, synth])
+
     return (
         <main style={{backgroundImage: 'url("/static/image.png")', backgroundRepeat: "repeat", backgroundSize: "417px 192px"}}
               className="flex-grow p-4">
